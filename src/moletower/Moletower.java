@@ -60,6 +60,7 @@ public class Moletower implements Runnable {
 				if (timeSinceLastMove > moveInterval) {
 					this.moveEnemies();
 					this.resolveEnemyMoveResults();
+					this.moveShots();
 					this.shootTowers();
 					moveCounter++;
 					lastMoveTime = System.currentTimeMillis();
@@ -132,7 +133,7 @@ public class Moletower implements Runnable {
 		}
 	}
 
-	public void moveEnemies() {
+	private void moveEnemies() {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
@@ -149,6 +150,23 @@ public class Moletower implements Runnable {
 		this.drawStatus(g);
 	}
 
+	private void moveShots() {
+		Iterator<Shot> shotIterator = this.shots.iterator();
+		while (shotIterator.hasNext()) {
+			Shot currentShot = shotIterator.next();
+			if(currentShot.canBeDeleted()) {
+				shotIterator.remove();
+				continue;
+			}
+			currentShot.move();
+			Iterator<Enemy> enemyIterator = this.enemies.iterator();
+			while (enemyIterator.hasNext()) {
+				Enemy currentEnemy = enemyIterator.next();
+				// TODO check and process collision of shot and enemy
+			}
+		}
+	}
+	
 	private void drawShots(Graphics g) {
 		Iterator<Shot> shotIterator = this.shotsToPaint.iterator();
 		while (shotIterator.hasNext()) {

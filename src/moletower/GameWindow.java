@@ -31,6 +31,7 @@ public class GameWindow extends JPanel implements MouseListener, MouseMotionList
 		frame.setVisible(true);
 	}
 
+	@Override
 	public void paintComponent(Graphics g) {
 		this.game.draw(g);
 	}

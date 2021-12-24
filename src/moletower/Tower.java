@@ -33,7 +33,7 @@ public class Tower {
 		if (System.currentTimeMillis() - lastShootingTime > cooldown) {
 			lastShootingTime = System.currentTimeMillis();
 			double angle = Moletower.calculateAngle(this.position.x, this.position.y, target.x, target.y);
-			return new Shot(position, angle);
+			return new Shot(position, angle, this.range);
 		}
 		return null;
 	}
