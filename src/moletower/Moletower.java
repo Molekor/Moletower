@@ -87,7 +87,7 @@ public class Moletower implements Runnable {
 		while (towerIterator.hasNext()) {
 			Tower shootingTower = towerIterator.next();
 			Enemy target = this.findClosestEnemy(shootingTower.getPosition());
-			if (target != null) {
+			if (target != null && target.isLiving()) {
 				Shot shot = shootingTower.shoot(target.getPosition());
 				if (shot != null) {
 					this.shots.add(shot);
@@ -102,6 +102,9 @@ public class Moletower implements Runnable {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
+			if (!currentEnemy.isLiving()) {
+				continue;
+			}
 			double currentDistance = Moletower.getDistance(startPoint, currentEnemy.getPosition());
 			if (currentDistance < smallestDistance) {
 				smallestDistance = currentDistance;
@@ -122,13 +125,13 @@ public class Moletower implements Runnable {
 		}
 		// @TODO develop an algorithm and data structure for spawning enemies that also
 		// holds the path(s)
-		if (this.moveCounter % 200 == 0) {
+		if (this.moveCounter % 77 == 0) {
 			this.enemies.add(new Enemy(path));
 		}
-		if ((this.moveCounter > 500) && ((this.moveCounter + 33) % 100 == 0)) {
+		if ((this.moveCounter > 500) && ((this.moveCounter + 33) % 43 == 0)) {
 			this.enemies.add(new Enemy(path));
 		}
-		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 50 == 0)) {
+		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 21 == 0)) {
 			this.enemies.add(new Enemy(path));
 		}
 	}
@@ -137,6 +140,10 @@ public class Moletower implements Runnable {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
+			if (currentEnemy.canBeDeleted()) {
+				enemyIterator.remove();
+				continue;
+			}
 			currentEnemy.move();
 		}
 	}
@@ -154,19 +161,29 @@ public class Moletower implements Runnable {
 		Iterator<Shot> shotIterator = this.shots.iterator();
 		while (shotIterator.hasNext()) {
 			Shot currentShot = shotIterator.next();
-			if(currentShot.canBeDeleted()) {
+			if (currentShot.canBeDeleted()) {
 				shotIterator.remove();
 				continue;
 			}
 			currentShot.move();
-			Iterator<Enemy> enemyIterator = this.enemies.iterator();
-			while (enemyIterator.hasNext()) {
-				Enemy currentEnemy = enemyIterator.next();
-				// TODO check and process collision of shot and enemy
+			if (currentShot.isLiving()) {
+				Iterator<Enemy> enemyIterator = this.enemies.iterator();
+				while (enemyIterator.hasNext()) {
+					Enemy currentEnemy = enemyIterator.next();
+					if (!currentEnemy.isLiving()) {
+						continue;
+					}
+					if (getDistance(currentShot.getPosition(),
+							currentEnemy.getPosition()) <= (currentEnemy.getSize() / 2)) {
+						currentShot.hit();
+						currentEnemy.hit();
+						break;
+					}
+				}
 			}
 		}
 	}
-	
+
 	private void drawShots(Graphics g) {
 		Iterator<Shot> shotIterator = this.shotsToPaint.iterator();
 		while (shotIterator.hasNext()) {

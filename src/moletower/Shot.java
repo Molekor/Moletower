@@ -9,14 +9,14 @@ public class Shot {
 	private double x;
 	private double y;
 	private double angle;
-	private double speed = 5;
+	private double speed = 4;
 	private double range;
-	private double movedDistance=0;
-	private boolean hasReachedMaxRange = false;
-	private long diedAt;
-	private int deadDuration = 5000;
+	private double movedDistance = 0;
+	private long diedAt = 0;
+	private int deadDuration = 1000;
 	private boolean canBeDeleted = false;
-	
+	private boolean isLiving = true;
+
 	public Shot(Point position, double angle, double range) {
 		this.x = position.x;
 		this.y = position.y;
@@ -25,30 +25,31 @@ public class Shot {
 	}
 
 	public void paintComponent(Graphics g) {
-		if(this.hasReachedMaxRange) {
-			g.setColor(Color.BLACK);
-			g.fillArc((int)this.x - 2, (int)this.y - 2, 4, 4, 0, 360);
+		if (this.isLiving) {
+			g.setColor(Color.RED);
+			int dx = (int) (5 * Math.cos(this.angle));
+			int dy = (int) (5 * Math.sin(this.angle));
+			g.drawLine((int) this.x - dx, (int) this.y - dy, (int) this.x + dx, (int) this.y + dy);
 		} else {
-			g.setColor(Color.PINK);
-			int dx = (int) (10 * Math.cos(this.angle));
-			int dy = (int) (10 * Math.sin(this.angle));
-			g.drawLine((int)this.x - dx, (int)this.y - dy, (int)this.x + dx, (int)this.y + dy);
+			g.setColor(Color.BLACK);
+			g.fillArc((int) this.x - 2, (int) this.y - 2, 4, 4, 0, 360);
+
 		}
 	}
 
 	public Point getPosition() {
-		return new Point((int)this.x, (int)this.y);
+		return new Point((int) this.x, (int) this.y);
 	}
 
 	public void move() {
-		if(this.hasReachedMaxRange) {
-			if( (System.currentTimeMillis() - this.diedAt) > this.deadDuration) {
+		if (!this.isLiving) {
+			if ((System.currentTimeMillis() - this.diedAt) > this.deadDuration) {
 				this.canBeDeleted = true;
 			}
 			return;
 		}
-		if(this.movedDistance >= this.range) {
-			this.hasReachedMaxRange  = true;
+		if (this.movedDistance >= this.range) {
+			this.isLiving = false;
 			this.diedAt = System.currentTimeMillis();
 		} else {
 			double dx = this.speed * Math.cos(this.angle);
@@ -61,5 +62,14 @@ public class Shot {
 
 	public boolean canBeDeleted() {
 		return this.canBeDeleted;
+	}
+
+	public void hit() {
+		this.isLiving = false;
+		this.diedAt = System.currentTimeMillis();
+	}
+
+	public boolean isLiving() {
+		return this.isLiving;
 	}
 }

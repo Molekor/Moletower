@@ -1,5 +1,6 @@
 package moletower;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -11,10 +12,14 @@ public class Enemy {
 	private Image image;
 	private List<Point> pathPoints;
 	private int nextPathPoint = 1;
-	private static double speed = .8;
+	private static double speed = 1.1;
 	private double x;
 	private double y;
-	private Boolean hasReachedExit = false;
+	private boolean hasReachedExit = false;
+	private long diedAt = 0;
+	private long deadDuration = 2000;
+	private boolean isLiving = true;
+	private boolean canBeDeleted = false;
 
 	Enemy(Path path) throws Exception {
 		this.pathPoints = path.getPathPoints();
@@ -32,11 +37,22 @@ public class Enemy {
 		if (this.hasReachedExit) {
 			return;
 		}
-		g.drawImage(image, (int) this.x - image.getWidth(null) / 2, (int) this.y - image.getHeight(null) / 2, null);
+		if (this.isLiving) {
+			g.drawImage(image, (int) this.x - image.getWidth(null) / 2, (int) this.y - image.getHeight(null) / 2, null);
+		} else {
+			g.setColor(Color.BLACK);
+			g.fillRect((int) this.x - 10, (int) this.y - 10, 20, 20);
+		}
 	}
 
 	public void move() {
 		if (this.hasReachedExit) {
+			return;
+		}
+		if (!this.isLiving ) {
+			if (System.currentTimeMillis() - this.diedAt > this.deadDuration) {
+				this.canBeDeleted = true;
+			}
 			return;
 		}
 		Point destination = this.pathPoints.get(nextPathPoint);
@@ -46,7 +62,7 @@ public class Enemy {
 
 		double xMove = speed * Math.cos(angle);
 		double yMove = speed * Math.sin(angle);
-		double traveled = Math.sqrt(xMove * xMove + (yMove * yMove));
+		double traveled = Math.sqrt(xMove * xMove + yMove * yMove);
 		double distance = Math.sqrt(dx * dx + dy * dy);
 
 		this.x = this.x + xMove;
@@ -69,5 +85,24 @@ public class Enemy {
 
 	public boolean hasReachedExit() {
 		return this.hasReachedExit;
+	}
+
+	public double getSize() {
+		int height = this.image.getHeight(null);
+		int width = this.image.getWidth(null);
+		return Math.sqrt(width * width + height * height);
+	}
+
+	public void hit() {
+		this.diedAt = System.currentTimeMillis();
+		this.isLiving = false;
+	}
+
+	public boolean canBeDeleted() {
+		return this.canBeDeleted;
+	}
+
+	public boolean isLiving() {
+		return this.isLiving;
 	}
 }

@@ -9,7 +9,7 @@ public class Tower {
 	private Point position;
 	private int radius = 5;
 	private int range = 150;
-	private int cooldown = 1000;
+	private int cooldown = 1500;
 	private long lastShootingTime = 0;
 
 	public Tower(Point position) {
