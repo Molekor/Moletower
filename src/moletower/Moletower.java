@@ -10,14 +10,19 @@ public class Moletower implements Runnable {
 	private long lastMoveTime;
 	private long startTime;
 	private long timeSinceLastMove = 0;
-	private static int moveInterval = 10;
+	private static int moveInterval = 40;
 	private GameWindow gameWindow;
 	private Vector<Enemy> enemies; // Use a thread-safe collection that we can clone to paint
-	private Vector<Enemy> enemiesToPaint; // @TODO Maybe replace with a class that only holds paint information of the enemies
+	private Vector<Enemy> enemiesToPaint; // @TODO Maybe replace with a class that only holds paint information of the
+											// enemies
+	private Vector<Tower> towers;
+	private Vector<Tower> towersToPaint;
 	private Path path;
-	private long moveCounter = 1;
-	private long paintCounter = 1;
-	
+	private long moveCounter = 0;
+	private long paintCounter = 0;
+	private Vector<Shot> shots;
+	private Vector<Shot> shotsToPaint;
+
 	public static void main(String[] args) {
 		new Moletower();
 	}
@@ -27,6 +32,10 @@ public class Moletower implements Runnable {
 		try {
 			this.enemies = new Vector<Enemy>();
 			this.enemiesToPaint = new Vector<Enemy>();
+			this.towers = new Vector<Tower>();
+			this.towersToPaint = new Vector<Tower>();
+			this.shots = new Vector<Shot>();
+			this.shotsToPaint = new Vector<Shot>();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -36,7 +45,12 @@ public class Moletower implements Runnable {
 		gameThread.start();
 	}
 
+	@SuppressWarnings("unchecked")
 	public void run() {
+
+		towers.add(new Tower(new Point(250, 100)));
+		towers.add(new Tower(new Point(580, 380)));
+
 		this.gameWindow.repaint();
 		timeSinceLastMove = System.currentTimeMillis();
 		startTime = timeSinceLastMove;
@@ -44,12 +58,19 @@ public class Moletower implements Runnable {
 			try {
 				timeSinceLastMove = System.currentTimeMillis() - lastMoveTime;
 				if (timeSinceLastMove > moveInterval) {
-					this.move();
-					this.resolveMoveResults();
+					this.moveEnemies();
+					this.resolveEnemyMoveResults();
+					this.shootTowers();
 					moveCounter++;
 					lastMoveTime = System.currentTimeMillis();
 					this.enemiesToPaint = (Vector<Enemy>) this.enemies.clone();
+					this.towersToPaint = (Vector<Tower>) this.towers.clone();
+					this.shotsToPaint = (Vector<Shot>) this.shots.clone();
+
 					this.gameWindow.repaint();
+
+				} else {
+					Thread.sleep(moveInterval - timeSinceLastMove);
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -60,53 +81,108 @@ public class Moletower implements Runnable {
 
 	}
 
-	private void resolveMoveResults() throws Exception {
+	private void shootTowers() {
+		Iterator<Tower> towerIterator = this.towers.iterator();
+		while (towerIterator.hasNext()) {
+			Tower shootingTower = towerIterator.next();
+			Enemy target = this.findClosestEnemy(shootingTower.getPosition());
+			if (target != null) {
+				Shot shot = shootingTower.shoot(target.getPosition());
+				if (shot != null) {
+					this.shots.add(shot);
+				}
+			}
+		}
+	}
+
+	private Enemy findClosestEnemy(Point startPoint) {
+		Enemy closestEnemy = null;
+		double smallestDistance = Double.MAX_VALUE;
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
-		while(enemyIterator.hasNext()) {
+		while (enemyIterator.hasNext()) {
+			Enemy currentEnemy = enemyIterator.next();
+			double currentDistance = Moletower.getDistance(startPoint, currentEnemy.getPosition());
+			if (currentDistance < smallestDistance) {
+				smallestDistance = currentDistance;
+				closestEnemy = currentEnemy;
+			}
+		}
+		return closestEnemy;
+	}
+
+	private void resolveEnemyMoveResults() throws Exception {
+		Iterator<Enemy> enemyIterator = this.enemies.iterator();
+		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
 			// @TODO Implement multiple lives, game over and restart
 			if (currentEnemy.hasReachedExit()) {
 				System.exit(0);
 			}
 		}
-		// @TODO develop an algorithm and data structure for spawning enemies that also holds the path(s)
-		if(this.moveCounter % 50 == 0) {
+		// @TODO develop an algorithm and data structure for spawning enemies that also
+		// holds the path(s)
+		if (this.moveCounter % 200 == 0) {
+			this.enemies.add(new Enemy(path));
+		}
+		if ((this.moveCounter > 500) && ((this.moveCounter + 33) % 100 == 0)) {
+			this.enemies.add(new Enemy(path));
+		}
+		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 50 == 0)) {
 			this.enemies.add(new Enemy(path));
 		}
 	}
 
-	public void move() {
+	public void moveEnemies() {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
-		while(enemyIterator.hasNext()) {
+		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
 			currentEnemy.move();
 		}
 	}
-	
+
 	public void draw(Graphics g) {
 		this.paintCounter++;
 		this.drawBackground(g);
-		
-		this.drawEnemies(g, this.enemiesToPaint);
+		this.drawEnemies(g);
+		this.drawTowers(g);
+		this.drawShots(g);
 		this.drawStatus(g);
+	}
+
+	private void drawShots(Graphics g) {
+		Iterator<Shot> shotIterator = this.shotsToPaint.iterator();
+		while (shotIterator.hasNext()) {
+			Shot currentShot = shotIterator.next();
+			currentShot.paintComponent(g);
+		}
 	}
 
 	private void drawStatus(Graphics g) {
 		long runtime = (System.currentTimeMillis() - this.startTime);
-		if (runtime < 1 ) {
+		if (runtime < 1) {
 			runtime = 1;
 		}
-		float fps = 1000 * this.moveCounter / (float)runtime;
-		g.drawString(
-				String.format("Move # %d Paint # %d Runtime (ms): %d FPS: %3.1f ", moveCounter, paintCounter, runtime, fps),
-			10, 10 );
+		float fps = 1000 * this.moveCounter / (float) runtime;
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, 800, 20);
+		g.setColor(Color.WHITE);
+		g.drawString(String.format("Move # %d Paint # %d Runtime (ms): %d FPS: %3.1f ", moveCounter, paintCounter,
+				runtime, fps), 10, 13);
 	}
 
-	private void drawEnemies(Graphics g, Vector<Enemy> enemiesToPaint) {
-		Iterator<Enemy> enemyIterator = enemiesToPaint.iterator();
-		while(enemyIterator.hasNext()) {
+	private void drawEnemies(Graphics g) {
+		Iterator<Enemy> enemyIterator = this.enemiesToPaint.iterator();
+		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
 			currentEnemy.paintComponent(g);
+		}
+	}
+
+	private void drawTowers(Graphics g) {
+		Iterator<Tower> towerIterator = this.towersToPaint.iterator();
+		while (towerIterator.hasNext()) {
+			Tower currentTower = towerIterator.next();
+			currentTower.paintComponent(g);
 		}
 	}
 
@@ -128,4 +204,12 @@ public class Moletower implements Runnable {
 		}
 	}
 
+	public static double getDistance(Point p1, Point p2) {
+		return Math.sqrt((p2.y - p1.y) * (p2.y - p1.y) + (p2.x - p1.x) * (p2.x - p1.x));
+	}
+
+	public static double calculateAngle(double ownX, double ownY, double targetX, double targetY) {
+		double angle = Math.atan2(targetY - ownY, targetX - ownX);
+		return angle;
+	}
 }

@@ -11,7 +11,7 @@ public class Enemy {
 	private Image image;
 	private List<Point> pathPoints;
 	private int nextPathPoint = 1;
-	private static double speed = .1;
+	private static double speed = .8;
 	private double x;
 	private double y;
 	private Boolean hasReachedExit = false;
@@ -29,6 +29,9 @@ public class Enemy {
 	}
 
 	public void paintComponent(Graphics g) {
+		if (this.hasReachedExit) {
+			return;
+		}
 		g.drawImage(image, (int) this.x - image.getWidth(null) / 2, (int) this.y - image.getHeight(null) / 2, null);
 	}
 
@@ -39,17 +42,18 @@ public class Enemy {
 		Point destination = this.pathPoints.get(nextPathPoint);
 		double dx = destination.x - this.x;
 		double dy = destination.y - this.y;
-		double angle = calculateAngle(this.x, this.y, destination.x, destination.y);
+		double angle = Moletower.calculateAngle(this.x, this.y, destination.x, destination.y);
 
-		double xMove = speed * Math.sin(Math.toRadians(angle));
-		double yMove = speed * Math.cos(Math.toRadians(angle));
-		double length = Math.sqrt((double) (xMove * xMove) + (double) (yMove * yMove));
-		double distance = Math.sqrt((double) (dx * dx) + (double) (dy * dy));
+		double xMove = speed * Math.cos(angle);
+		double yMove = speed * Math.sin(angle);
+		double traveled = Math.sqrt(xMove * xMove + (yMove * yMove));
+		double distance = Math.sqrt(dx * dx + dy * dy);
+
 		this.x = this.x + xMove;
 		this.y = this.y + yMove;
 
-		if (distance <= length) {
-			if (nextPathPoint >= this.pathPoints.size() - 1) {
+		if (distance <= traveled) {
+			if (nextPathPoint == this.pathPoints.size() - 1) {
 				this.hasReachedExit = true;
 			} else {
 				this.x = destination.x;
@@ -57,11 +61,6 @@ public class Enemy {
 				nextPathPoint++;
 			}
 		}
-	}
-
-	public static double calculateAngle(double x1, double y1, double x2, double y2) {
-		double angle = Math.toDegrees(Math.atan2(x2 - x1, y2 - y1));
-		return angle;
 	}
 
 	public Point getPosition() {
