@@ -14,6 +14,8 @@ public class Path {
 		this.pathPoints.add(new Point(100, 50));
 		this.pathPoints.add(new Point(200, 150));
 		this.pathPoints.add(new Point(200, 250));
+		this.pathPoints.add(new Point(650, 550));
+		this.pathPoints.add(new Point(600, 50));
 	}
 
 	public List<Point> getPathPoints() {
