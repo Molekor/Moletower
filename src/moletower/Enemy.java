@@ -12,7 +12,7 @@ public class Enemy {
 	private Image image;
 	private List<Point> pathPoints;
 	private int nextPathPoint = 1;
-	private static double speed = 1.1;
+	private static double speed = 1.8;
 	private double x;
 	private double y;
 	private boolean hasReachedExit = false;

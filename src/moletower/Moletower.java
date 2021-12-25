@@ -48,9 +48,10 @@ public class Moletower implements Runnable {
 	@SuppressWarnings("unchecked")
 	public void run() {
 
-		towers.add(new Tower(new Point(250, 100)));
-		towers.add(new Tower(new Point(580, 380)));
-
+		towers.add(new Firetower(new Point(250, 100)));
+		towers.add(new Firetower(new Point(580, 380)));
+		towers.add(new Fasttower(new Point(180, 240)));
+		
 		this.gameWindow.repaint();
 		timeSinceLastMove = System.currentTimeMillis();
 		startTime = timeSinceLastMove;
@@ -125,13 +126,16 @@ public class Moletower implements Runnable {
 		}
 		// @TODO develop an algorithm and data structure for spawning enemies that also
 		// holds the path(s)
-		if (this.moveCounter % 77 == 0) {
+		if (this.moveCounter % 55 == 0) {
 			this.enemies.add(new Enemy(path));
 		}
-		if ((this.moveCounter > 500) && ((this.moveCounter + 33) % 43 == 0)) {
+		if ((this.moveCounter > 300) && ((this.moveCounter + 33) % 33 == 0)) {
 			this.enemies.add(new Enemy(path));
 		}
-		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 21 == 0)) {
+		if ((this.moveCounter > 700) && ((this.moveCounter + 88) % 22 == 0)) {
+			this.enemies.add(new Enemy(path));
+		}
+		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 8 == 0)) {
 			this.enemies.add(new Enemy(path));
 		}
 	}
