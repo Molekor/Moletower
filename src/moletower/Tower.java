@@ -9,7 +9,8 @@ public abstract class Tower {
 	protected int range;
 	protected int cooldown;
 	protected long lastShootingTime = 0;
-
+	protected boolean isActive = false;
+	
 	public Tower(Point position) {
 		this.position = position;
 	}
@@ -35,4 +36,11 @@ public abstract class Tower {
 		return this.position;
 	}
 
+	public void setPosition(Point position) {
+		this.position = position;
+	}
+
+	public void setActive(boolean active) {
+		this.isActive = active;
+	}
 }

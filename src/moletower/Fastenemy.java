@@ -26,8 +26,8 @@ public class Fastenemy extends Enemy {
 		if (this.isLiving) {
 			g.drawImage(image, (int) this.x - image.getWidth(null) / 2, (int) this.y - image.getHeight(null) / 2, null);
 		} else {
-			g.setColor(Color.BLACK);
-			g.fillRect((int) this.x - 10, (int) this.y - 10, 20, 20);
+			g.setColor(Color.GREEN);
+			g.fillRect((int) this.x - 2, (int) this.y - 2, 4, 4);
 		}
 	}
 

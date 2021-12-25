@@ -22,6 +22,9 @@ public class Moletower implements Runnable {
 	private long paintCounter = 0;
 	private Vector<Shot> shots;
 	private Vector<Shot> shotsToPaint;
+	private boolean roundActive = false;
+	private boolean placingTower = false;
+	private Tower towerToPlace;
 
 	public static void main(String[] args) {
 		new Moletower();
@@ -48,33 +51,36 @@ public class Moletower implements Runnable {
 	@SuppressWarnings("unchecked")
 	public void run() {
 
-		towers.add(new Firetower(new Point(250, 100)));
-		towers.add(new Firetower(new Point(580, 380)));
-		towers.add(new Fasttower(new Point(180, 240)));
-		towers.add(new Fasttower(new Point(590, 120)));
+		//towers.add(new Firetower(new Point(250, 100)));
+		//towers.add(new Firetower(new Point(580, 380)));
+		//towers.add(new Fasttower(new Point(180, 240)));
+		//towers.add(new Fasttower(new Point(590, 120)));
 
 		this.gameWindow.repaint();
+
+		
 		timeSinceLastMove = System.currentTimeMillis();
 		startTime = timeSinceLastMove;
 		while (true) {
 			try {
-				timeSinceLastMove = System.currentTimeMillis() - lastMoveTime;
-				if (timeSinceLastMove > moveInterval) {
-					this.moveEnemies();
-					this.resolveEnemyMoveResults();
-					this.moveShots();
-					this.shootTowers();
-					moveCounter++;
-					lastMoveTime = System.currentTimeMillis();
-					this.enemiesToPaint = (Vector<Enemy>) this.enemies.clone();
-					this.towersToPaint = (Vector<Tower>) this.towers.clone();
-					this.shotsToPaint = (Vector<Shot>) this.shots.clone();
-
-					this.gameWindow.repaint();
-
-				} else {
-					Thread.sleep(moveInterval - timeSinceLastMove);
+				this.checkUserAction();
+				if (this.roundActive) {
+					timeSinceLastMove = System.currentTimeMillis() - lastMoveTime;
+					if (timeSinceLastMove > moveInterval) {
+						this.moveEnemies();
+						this.resolveEnemyMoveResults();
+						this.moveShots();
+						this.shootTowers();
+						moveCounter++;
+						lastMoveTime = System.currentTimeMillis();
+						this.enemiesToPaint = (Vector<Enemy>) this.enemies.clone();
+						this.shotsToPaint = (Vector<Shot>) this.shots.clone();
+					} else {
+						Thread.sleep(moveInterval - timeSinceLastMove);
+					}
 				}
+				this.towersToPaint = (Vector<Tower>) this.towers.clone();
+				this.gameWindow.repaint();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -160,12 +166,87 @@ public class Moletower implements Runnable {
 	}
 
 	public void draw(Graphics g) {
-		this.paintCounter++;
 		this.drawBackground(g);
-		this.drawEnemies(g);
+		if(this.roundActive) {
+			this.paintCounter++;
+			this.drawEnemies(g);
+			this.drawShots(g);
+		}
 		this.drawTowers(g);
-		this.drawShots(g);
 		this.drawStatus(g);
+		// Draw sidebar last, so it is the top layer
+		this.drawSidebar(g);
+		// The tower to place hovers over all
+		this.drawTowerToPlace(g);
+	}
+	
+	private void drawTowerToPlace(Graphics g) {
+		if (this.placingTower) {
+			this.towerToPlace.paintComponent(g);
+		}
+	}
+
+	private void drawSidebar(Graphics g) {
+		g.setColor(Color.BLACK);
+		g.fillRect(700, 0, 100, 600);
+		g.setColor(Color.GREEN);
+		g.fillRect(710, 50, 80, 30);
+		g.fillRect(710, 110, 80, 30);
+		g.setColor(Color.BLACK);
+		g.drawString("Firetower", 720, 70);
+		g.drawString("Fasttower", 720, 130);
+		if(!this.roundActive) {
+			g.setColor(Color.GREEN);
+			g.fillRect(710, 500, 80, 30);
+			g.setColor(Color.BLACK);
+			g.drawString("START", 715, 515);
+		}
+	}
+
+	private void checkUserAction() {
+		
+		// Check for start of round button
+		if (this.roundActive == false && this.gameWindow.mouseIsPressed) {
+			int mouseX = this.gameWindow.mousePosition.x;
+			int mouseY = this.gameWindow.mousePosition.y;
+			if (mouseX > 710 && mouseX < 790 && mouseY > 500 && mouseY < 530) {
+				this.roundActive = true;
+			} else {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// Check for tower placement
+
+		
+		// User is placing tower and releases the mouse button: Drop the tower at the mouse position
+		if(this.placingTower) {
+			if (!this.gameWindow.mouseIsPressed && this.gameWindow.mousePosition.x < 700) {
+				this.placingTower = false;
+				this.towerToPlace.setActive(true);
+				this.towers.add(towerToPlace);
+			} else {
+				this.towerToPlace.setPosition(this.gameWindow.mousePosition);
+			}
+		} else {
+			if (this.gameWindow.mouseIsPressed) {
+				int mouseX = this.gameWindow.mousePosition.x;
+				int mouseY = this.gameWindow.mousePosition.y;
+				if (mouseX > 710 && mouseX < 790 && mouseY > 50 && mouseY < 80) {
+					this.placingTower  = true;
+					this.towerToPlace = new Firetower(new Point(0,0));
+				}
+				if (mouseX > 710 && mouseX < 790 && mouseY > 110 && mouseY < 140) {
+					this.placingTower  = true;
+					this.towerToPlace = new Fasttower(new Point(0,0));
+				}
+			}
+		}
 	}
 
 	private void moveShots() {
@@ -208,12 +289,12 @@ public class Moletower implements Runnable {
 		if (runtime < 1) {
 			runtime = 1;
 		}
-		float fps = 1000 * this.moveCounter / (float) runtime;
+		//float fps = 1000 * this.moveCounter / (float) runtime;
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, 800, 20);
 		g.setColor(Color.WHITE);
-		g.drawString(String.format("Move # %d Paint # %d Runtime (ms): %d FPS: %3.1f ", moveCounter, paintCounter,
-				runtime, fps), 10, 13);
+		String action = this.placingTower ? "PLACING TOWER" : "none";
+		g.drawString(String.format("Move # %d Paint # %d Action: %s", moveCounter, paintCounter, action), 10, 13);
 	}
 
 	private void drawEnemies(Graphics g) {
@@ -235,6 +316,7 @@ public class Moletower implements Runnable {
 	private void drawBackground(Graphics g) {
 		g.setColor(Color.YELLOW);
 		g.fillRect(0, 0, 800, 600);
+		
 		g.setColor(Color.BLACK);
 		Iterator<Point> pathIterator = path.getPathPoints().iterator();
 		Point lastPoint = null;

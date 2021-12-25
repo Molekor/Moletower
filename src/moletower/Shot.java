@@ -31,7 +31,7 @@ public class Shot {
 			int dy = (int) (5 * Math.sin(this.angle));
 			g.drawLine((int) this.x - dx, (int) this.y - dy, (int) this.x + dx, (int) this.y + dy);
 		} else {
-			g.setColor(Color.BLACK);
+			g.setColor(Color.RED);
 			g.fillArc((int) this.x - 2, (int) this.y - 2, 4, 4, 0, 360);
 
 		}

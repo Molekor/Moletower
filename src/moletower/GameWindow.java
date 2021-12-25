@@ -68,7 +68,7 @@ public class GameWindow extends JPanel implements MouseListener, MouseMotionList
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		this.mousePosition = new Point(e.getX(), e.getY());
-		this.mouseIsPressed = false;
+		this.mouseIsPressed = true;
 	}
 
 	@Override

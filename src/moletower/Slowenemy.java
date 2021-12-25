@@ -12,7 +12,7 @@ public class Slowenemy extends Enemy {
 		super(path);
 		ImageIcon ii = new ImageIcon("resources/Worg.png");
 		image = ii.getImage();
-		this.deadDuration = 2000;
+		this.deadDuration = 500;
 		this.speed = 1.8;
 	}
 	
@@ -25,7 +25,7 @@ public class Slowenemy extends Enemy {
 			g.drawImage(image, (int) this.x - image.getWidth(null) / 2, (int) this.y - image.getHeight(null) / 2, null);
 		} else {
 			g.setColor(Color.BLACK);
-			g.fillRect((int) this.x - 10, (int) this.y - 10, 20, 20);
+			g.fillRect((int) this.x - 4, (int) this.y - 4, 8, 8);
 		}
 	}
 

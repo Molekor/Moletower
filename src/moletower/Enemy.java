@@ -1,12 +1,8 @@
 package moletower;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Point;
 import java.util.List;
-
-import javax.swing.ImageIcon;
 
 public abstract class Enemy {
 
