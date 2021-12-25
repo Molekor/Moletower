@@ -51,7 +51,8 @@ public class Moletower implements Runnable {
 		towers.add(new Firetower(new Point(250, 100)));
 		towers.add(new Firetower(new Point(580, 380)));
 		towers.add(new Fasttower(new Point(180, 240)));
-		
+		towers.add(new Fasttower(new Point(590, 120)));
+
 		this.gameWindow.repaint();
 		timeSinceLastMove = System.currentTimeMillis();
 		startTime = timeSinceLastMove;
@@ -127,16 +128,22 @@ public class Moletower implements Runnable {
 		// @TODO develop an algorithm and data structure for spawning enemies that also
 		// holds the path(s)
 		if (this.moveCounter % 55 == 0) {
-			this.enemies.add(new Enemy(path));
+			this.enemies.add(new Slowenemy(path));
+		}
+		if ((this.moveCounter > 200) && ((this.moveCounter + 33) % 37 == 0)) {
+			this.enemies.add(new Fastenemy(path));
 		}
 		if ((this.moveCounter > 300) && ((this.moveCounter + 33) % 33 == 0)) {
-			this.enemies.add(new Enemy(path));
+			this.enemies.add(new Slowenemy(path));
 		}
 		if ((this.moveCounter > 700) && ((this.moveCounter + 88) % 22 == 0)) {
-			this.enemies.add(new Enemy(path));
+			this.enemies.add(new Slowenemy(path));
 		}
 		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 8 == 0)) {
-			this.enemies.add(new Enemy(path));
+			this.enemies.add(new Slowenemy(path));
+		}
+		if ((this.moveCounter > 1200) && ((this.moveCounter + 33) % 14 == 0)) {
+			this.enemies.add(new Fastenemy(path));
 		}
 	}
 

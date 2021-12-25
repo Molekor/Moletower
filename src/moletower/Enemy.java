@@ -8,18 +8,18 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
-public class Enemy {
-	private Image image;
-	private List<Point> pathPoints;
-	private int nextPathPoint = 1;
-	private static double speed = 1.8;
-	private double x;
-	private double y;
-	private boolean hasReachedExit = false;
-	private long diedAt = 0;
-	private long deadDuration = 2000;
-	private boolean isLiving = true;
-	private boolean canBeDeleted = false;
+public abstract class Enemy {
+
+	protected List<Point> pathPoints;
+	protected int nextPathPoint = 1;
+	protected double speed;
+	protected double x;
+	protected double y;
+	protected boolean hasReachedExit = false;
+	protected long diedAt = 0;
+	protected long deadDuration;
+	protected boolean isLiving = true;
+	protected boolean canBeDeleted = false;
 
 	Enemy(Path path) throws Exception {
 		this.pathPoints = path.getPathPoints();
@@ -29,21 +29,9 @@ public class Enemy {
 		Point start = pathPoints.get(0);
 		this.x = start.x;
 		this.y = start.y;
-		ImageIcon ii = new ImageIcon("resources/Worg.png");
-		image = ii.getImage();
 	}
 
-	public void paintComponent(Graphics g) {
-		if (this.hasReachedExit) {
-			return;
-		}
-		if (this.isLiving) {
-			g.drawImage(image, (int) this.x - image.getWidth(null) / 2, (int) this.y - image.getHeight(null) / 2, null);
-		} else {
-			g.setColor(Color.BLACK);
-			g.fillRect((int) this.x - 10, (int) this.y - 10, 20, 20);
-		}
-	}
+	public abstract void paintComponent(Graphics g);
 
 	public void move() {
 		if (this.hasReachedExit) {
@@ -87,11 +75,7 @@ public class Enemy {
 		return this.hasReachedExit;
 	}
 
-	public double getSize() {
-		int height = this.image.getHeight(null);
-		int width = this.image.getWidth(null);
-		return Math.sqrt(width * width + height * height);
-	}
+	public abstract double getSize();
 
 	public void hit() {
 		this.diedAt = System.currentTimeMillis();
