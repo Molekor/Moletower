@@ -6,14 +6,26 @@ import java.awt.Image;
 
 import javax.swing.ImageIcon;
 
+/**
+ * A big and slow enemy
+ * 
+ * @author Molekor
+ *
+ */
 public class Slowenemy extends Enemy {
+	
 	private Image image;
+	public static int baseLives = 4;
+	
 	Slowenemy(Path path) throws Exception {
+	
 		super(path);
 		ImageIcon ii = new ImageIcon("resources/Worg.png");
 		image = ii.getImage();
 		this.deadDuration = 500;
 		this.speed = 1.8;
+		this.value = 2;
+		this.lives = baseLives;
 	}
 	
 	@Override
@@ -35,4 +47,5 @@ public class Slowenemy extends Enemy {
 		int width = this.image.getWidth(null);
 		return Math.sqrt(width * width + height * height);
 	}
+
 }

@@ -7,11 +7,13 @@ import java.awt.Point;
 public class Firetower extends Tower {
 
 	private int radius = 5;
+	public static int basePrice = 30;
 	
 	public Firetower(Point position) {
 		super(position);
 		this.range = 150;
-		this.cooldown = 1500;
+		this.cooldown = 800;
+		this.price = basePrice;
 	}
 	
 	public void paintComponent(Graphics g) {

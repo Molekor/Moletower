@@ -9,6 +9,7 @@ public abstract class Tower {
 	protected int range;
 	protected int cooldown;
 	protected long lastShootingTime = 0;
+	protected int price;
 	protected boolean isActive = false;
 	
 	public Tower(Point position) {
@@ -21,12 +22,12 @@ public abstract class Tower {
 		if (target == null) {
 			return null;
 		}
-		if (Moletower.getDistance(target, position) > range) {
+		if (MathHelper.getDistance(target, position) > range) {
 			return null;
 		}
 		if (System.currentTimeMillis() - lastShootingTime > cooldown) {
 			lastShootingTime = System.currentTimeMillis();
-			double angle = Moletower.calculateAngle(this.position.x, this.position.y, target.x, target.y);
+			double angle = MathHelper.calculateAngle(this.position.x, this.position.y, target.x, target.y);
 			return new Shot(position, angle, this.range);
 		}
 		return null;
@@ -42,5 +43,9 @@ public abstract class Tower {
 
 	public void setActive(boolean active) {
 		this.isActive = active;
+	}
+
+	public int getPrice() {
+		return this.price;
 	}
 }

@@ -6,16 +6,25 @@ import java.awt.Image;
 
 import javax.swing.ImageIcon;
 
+/**
+ * A fast but small enemy
+ * 
+ * @author Molekor
+ *
+ */
 public class Fastenemy extends Enemy {
 
 	private Image image;
-
+	public static int baseLives = 2;
+	
 	Fastenemy(Path path) throws Exception {
 		super(path);
 		ImageIcon ii = new ImageIcon("resources/Fastenemy.png");
 		image = ii.getImage();
 		this.deadDuration = 800;
 		this.speed = 3.8;
+		this.value = 3;
+		this.lives = Fastenemy.baseLives;
 	}
 
 	@Override
@@ -37,4 +46,5 @@ public class Fastenemy extends Enemy {
 		int width = this.image.getWidth(null);
 		return Math.sqrt(width * width + height * height);
 	}
+
 }

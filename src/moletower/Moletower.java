@@ -6,26 +6,40 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.Vector;
 
+/**
+ * The master class of the game.
+ * 
+ * @author Molekor
+ *
+ */
 public class Moletower implements Runnable {
-	private long lastMoveTime;
-	private long startTime;
-	private long timeSinceLastMove = 0;
-	private static int moveInterval = 40;
-	private GameWindow gameWindow;
-	private Vector<Enemy> enemies; // Use a thread-safe collection that we can clone to paint
-	private Vector<Enemy> enemiesToPaint; // @TODO Maybe replace with a class that only holds paint information of the
-											// enemies
+
+	private long lastMoveTime; // time we last moved the shots and enemies
+	private long startTime; // time the round started
+	private long timeSinceLastMove = 0; // how long has it been since the last move
+	private static int moveInterval = 40; // minimal interval between moves in ms, this represents overall game speed
+	private GameWindow gameWindow; // Main window of the game that handles basic I/O
+
+	// We use one copy of game data to compute the next move, and one copy to draw the results of the last move
+	// Vectors can be cloned thread-safe so we use them for that purpose
+	// @TODO Maybe replace with a class that only holds paint information of the enemies
+	private Vector<Enemy> enemies; // The enemies that are used for computing moves
+	private Vector<Enemy> enemiesToPaint; // The enemy data used for painting
 	private Vector<Tower> towers;
 	private Vector<Tower> towersToPaint;
-	private Path path;
-	private long moveCounter = 0;
-	private long paintCounter = 0;
 	private Vector<Shot> shots;
 	private Vector<Shot> shotsToPaint;
+	private Path path; // The path all enemies will follow to the exit
+	private long moveCounter = 0;
+	private long paintCounter = 0;
 	private boolean roundActive = false;
-	private boolean placingTower = false;
-	private Tower towerToPlace;
+	private boolean placingTower = false; // Is the user actively placing a tower?
+	private Tower towerToPlace; // The tower instance that the user is trying to place
 
+	private int lives = 50; // The player's lives. Zero lives = game over
+	private int money = 80; // The player's money pool used to buy and upgrade towers
+	private boolean moneyWarning = false; // Indicator that the player tries something too expensive, so we can issue a warning on screen
+	
 	public static void main(String[] args) {
 		new Moletower();
 	}
@@ -48,24 +62,26 @@ public class Moletower implements Runnable {
 		gameThread.start();
 	}
 
+
 	@SuppressWarnings("unchecked")
 	public void run() {
 
-		//towers.add(new Firetower(new Point(250, 100)));
-		//towers.add(new Firetower(new Point(580, 380)));
-		//towers.add(new Fasttower(new Point(180, 240)));
-		//towers.add(new Fasttower(new Point(590, 120)));
-
 		this.gameWindow.repaint();
-
-		
 		timeSinceLastMove = System.currentTimeMillis();
 		startTime = timeSinceLastMove;
+		
+		/**
+		 * Main game loop
+		 */
 		while (true) {
 			try {
+				// Always check what the user is doing
+				// @TODO Replace with proper mouse listeners etc.
 				this.checkUserAction();
+				// Game element actions, if the game is active
 				if (this.roundActive) {
 					timeSinceLastMove = System.currentTimeMillis() - lastMoveTime;
+					// Only move if at least the moveInterval time has passed, else pause
 					if (timeSinceLastMove > moveInterval) {
 						this.moveEnemies();
 						this.resolveEnemyMoveResults();
@@ -79,7 +95,9 @@ public class Moletower implements Runnable {
 						Thread.sleep(moveInterval - timeSinceLastMove);
 					}
 				}
+				// Towers may be bought before the round is started, so fill the paint data
 				this.towersToPaint = (Vector<Tower>) this.towers.clone();
+				// Draw all changes that may have happened
 				this.gameWindow.repaint();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -87,9 +105,13 @@ public class Moletower implements Runnable {
 				System.exit(1);
 			}
 		}
-
 	}
 
+	/**
+	 * Iterate through all towers, find the next living target for each 
+	 * tower, and shoot at it. The tower checks range and cooldown itself.
+	 * If a shot is fired, it is added to the shots vector.
+	 */
 	private void shootTowers() {
 		Iterator<Tower> towerIterator = this.towers.iterator();
 		while (towerIterator.hasNext()) {
@@ -104,6 +126,11 @@ public class Moletower implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * @param startPoint The coordinates from where we look
+	 * @return the enemy closest to the given coordinates, null if no enemy is found
+	 */
 	private Enemy findClosestEnemy(Point startPoint) {
 		Enemy closestEnemy = null;
 		double smallestDistance = Double.MAX_VALUE;
@@ -113,7 +140,7 @@ public class Moletower implements Runnable {
 			if (!currentEnemy.isLiving()) {
 				continue;
 			}
-			double currentDistance = Moletower.getDistance(startPoint, currentEnemy.getPosition());
+			double currentDistance = MathHelper.getDistance(startPoint, currentEnemy.getPosition());
 			if (currentDistance < smallestDistance) {
 				smallestDistance = currentDistance;
 				closestEnemy = currentEnemy;
@@ -122,13 +149,21 @@ public class Moletower implements Runnable {
 		return closestEnemy;
 	}
 
+	/**
+	 * Check if any enemies have reached the exit. They cost the player lives
+	 * and then disappear from the game.
+	 * @throws Exception
+	 */
 	private void resolveEnemyMoveResults() throws Exception {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
-			// @TODO Implement multiple lives, game over and restart
 			if (currentEnemy.hasReachedExit()) {
-				System.exit(0);
+				this.lives--;
+				if (this.lives == 0) {
+					System.exit(0);
+				}
+				enemyIterator.remove();
 			}
 		}
 		// @TODO develop an algorithm and data structure for spawning enemies that also
@@ -153,6 +188,10 @@ public class Moletower implements Runnable {
 		}
 	}
 
+	/**
+	 * Enemy movement and actions. Dead enemies are removed here if their death animation has been
+	 * shown long enough.
+	 */
 	private void moveEnemies() {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
@@ -165,9 +204,14 @@ public class Moletower implements Runnable {
 		}
 	}
 
+	/**
+	 * Draw the game. This is called by the GameWindow when it is repainted.
+	 * 
+	 * @param g The graphics object of the GameWindow
+	 */
 	public void draw(Graphics g) {
 		this.drawBackground(g);
-		if(this.roundActive) {
+		if (this.roundActive) {
 			this.paintCounter++;
 			this.drawEnemies(g);
 			this.drawShots(g);
@@ -179,23 +223,37 @@ public class Moletower implements Runnable {
 		// The tower to place hovers over all
 		this.drawTowerToPlace(g);
 	}
-	
+
+	/**
+	 * Paint the tower the user is trying to place
+	 * 
+	 * @param g
+	 */
 	private void drawTowerToPlace(Graphics g) {
 		if (this.placingTower) {
 			this.towerToPlace.paintComponent(g);
 		}
 	}
 
+	/**
+	 * The tower menu etc.
+	 * 
+	 * @param g
+	 */
 	private void drawSidebar(Graphics g) {
 		g.setColor(Color.BLACK);
 		g.fillRect(700, 0, 100, 600);
 		g.setColor(Color.GREEN);
 		g.fillRect(710, 50, 80, 30);
 		g.fillRect(710, 110, 80, 30);
-		g.setColor(Color.BLACK);
-		g.drawString("Firetower", 720, 70);
-		g.drawString("Fasttower", 720, 130);
-		if(!this.roundActive) {
+		if (this.moneyWarning) {
+			g.setColor(Color.RED);
+		} else {
+			g.setColor(Color.BLACK);
+		}
+		g.drawString("Firetower " + Firetower.basePrice + " $", 711, 70);
+		g.drawString("Fasttower " + Fasttower.basePrice + " $", 711, 130);
+		if (!this.roundActive) {
 			g.setColor(Color.GREEN);
 			g.fillRect(710, 500, 80, 30);
 			g.setColor(Color.BLACK);
@@ -203,7 +261,12 @@ public class Moletower implements Runnable {
 		}
 	}
 
+	/**
+	 * Resolves all user action (Mouseclicks)
+	 */
 	private void checkUserAction() {
+		
+		this.moneyWarning = false;
 		
 		// Check for start of round button
 		if (this.roundActive == false && this.gameWindow.mouseIsPressed) {
@@ -222,14 +285,15 @@ public class Moletower implements Runnable {
 		}
 
 		// Check for tower placement
-
-		
-		// User is placing tower and releases the mouse button: Drop the tower at the mouse position
-		if(this.placingTower) {
+		// TODO: Use proper Java UI items!
+		// User is placing tower and releases the mouse button: Drop the tower at the
+		// mouse position
+		if (this.placingTower) {
 			if (!this.gameWindow.mouseIsPressed && this.gameWindow.mousePosition.x < 700) {
 				this.placingTower = false;
 				this.towerToPlace.setActive(true);
 				this.towers.add(towerToPlace);
+				this.money -= towerToPlace.getPrice();
 			} else {
 				this.towerToPlace.setPosition(this.gameWindow.mousePosition);
 			}
@@ -238,17 +302,26 @@ public class Moletower implements Runnable {
 				int mouseX = this.gameWindow.mousePosition.x;
 				int mouseY = this.gameWindow.mousePosition.y;
 				if (mouseX > 710 && mouseX < 790 && mouseY > 50 && mouseY < 80) {
-					this.placingTower  = true;
-					this.towerToPlace = new Firetower(new Point(0,0));
+					this.placingTower = true;
+					this.towerToPlace = new Firetower(new Point(0, 0));
 				}
 				if (mouseX > 710 && mouseX < 790 && mouseY > 110 && mouseY < 140) {
-					this.placingTower  = true;
-					this.towerToPlace = new Fasttower(new Point(0,0));
+					this.placingTower = true;
+					this.towerToPlace = new Fasttower(new Point(0, 0));
+				}
+				// Check if we have the money to place the selected tower
+				if ((this.towerToPlace != null) && (this.towerToPlace.getPrice() > this.money)) {
+					this.placingTower = false;
+					this.moneyWarning = true;
+					this.towerToPlace = null;
 				}
 			}
 		}
 	}
 
+	/**
+	 * All shots are processed here
+	 */
 	private void moveShots() {
 		Iterator<Shot> shotIterator = this.shots.iterator();
 		while (shotIterator.hasNext()) {
@@ -265,10 +338,12 @@ public class Moletower implements Runnable {
 					if (!currentEnemy.isLiving()) {
 						continue;
 					}
-					if (getDistance(currentShot.getPosition(),
-							currentEnemy.getPosition()) <= (currentEnemy.getSize() / 2)) {
+					if (MathHelper.getDistance(currentShot.getPosition(), currentEnemy.getPosition()) <= (currentEnemy.getSize() / 2)) {
 						currentShot.hit();
 						currentEnemy.hit();
+						if (!currentEnemy.isLiving) {
+							this.money += currentEnemy.getValue();
+						}
 						break;
 					}
 				}
@@ -289,12 +364,17 @@ public class Moletower implements Runnable {
 		if (runtime < 1) {
 			runtime = 1;
 		}
-		//float fps = 1000 * this.moveCounter / (float) runtime;
+		// float fps = 1000 * this.moveCounter / (float) runtime;
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, 800, 20);
-		g.setColor(Color.WHITE);
+		if (this.moneyWarning) {
+			g.setColor(Color.RED);
+		} else {
+			g.setColor(Color.WHITE);
+		}
 		String action = this.placingTower ? "PLACING TOWER" : "none";
-		g.drawString(String.format("Move # %d Paint # %d Action: %s", moveCounter, paintCounter, action), 10, 13);
+		g.drawString(String.format("Lives: %d Money: %d Move # %d Paint # %d Action: %s " + (this.moneyWarning?"NO MONEY":"OK"), this.lives, this.money, moveCounter, paintCounter, action), 10, 13);
+
 	}
 
 	private void drawEnemies(Graphics g) {
@@ -316,7 +396,7 @@ public class Moletower implements Runnable {
 	private void drawBackground(Graphics g) {
 		g.setColor(Color.YELLOW);
 		g.fillRect(0, 0, 800, 600);
-		
+
 		g.setColor(Color.BLACK);
 		Iterator<Point> pathIterator = path.getPathPoints().iterator();
 		Point lastPoint = null;
@@ -332,12 +412,4 @@ public class Moletower implements Runnable {
 		}
 	}
 
-	public static double getDistance(Point p1, Point p2) {
-		return Math.sqrt((p2.y - p1.y) * (p2.y - p1.y) + (p2.x - p1.x) * (p2.x - p1.x));
-	}
-
-	public static double calculateAngle(double ownX, double ownY, double targetX, double targetY) {
-		double angle = Math.atan2(targetY - ownY, targetX - ownX);
-		return angle;
-	}
 }

@@ -7,11 +7,13 @@ import java.awt.Point;
 public class Fasttower extends Tower {
 
 	private int radius = 3;
+	public static int basePrice = 50;
 	
 	public Fasttower(Point position) {
 		super(position);
 		this.range = 50;
-		this.cooldown = 500;
+		this.cooldown = 300;
+		this.price = Fasttower.basePrice;
 	}
 	
 	@Override
