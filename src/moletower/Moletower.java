@@ -1,7 +1,5 @@
 package moletower;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.util.Iterator;
 import java.util.Vector;
@@ -15,7 +13,6 @@ import java.util.Vector;
 public class Moletower implements Runnable {
 
 	private long lastMoveTime; // time we last moved the shots and enemies
-	private long startTime; // time the round started
 	private long timeSinceLastMove = 0; // how long has it been since the last move
 	private static int moveInterval = 40; // minimal interval between moves in ms, this represents overall game speed
 	private GameWindow gameWindow; // Main window of the game that handles basic I/O
@@ -24,14 +21,10 @@ public class Moletower implements Runnable {
 	// Vectors can be cloned thread-safe so we use them for that purpose
 	// @TODO Maybe replace with a class that only holds paint information of the enemies
 	private Vector<Enemy> enemies; // The enemies that are used for computing moves
-	private Vector<Enemy> enemiesToPaint; // The enemy data used for painting
 	private Vector<Tower> towers;
-	private Vector<Tower> towersToPaint;
 	private Vector<Shot> shots;
-	private Vector<Shot> shotsToPaint;
 	private Path path; // The path all enemies will follow to the exit
 	private long moveCounter = 0;
-	private long paintCounter = 0;
 	private boolean roundActive = false;
 	private boolean placingTower = false; // Is the user actively placing a tower?
 	private Tower towerToPlace; // The tower instance that the user is trying to place
@@ -40,24 +33,19 @@ public class Moletower implements Runnable {
 	private int money = 80; // The player's money pool used to buy and upgrade towers
 	private boolean moneyWarning = false; // Indicator that the player tries something too expensive, so we can issue a warning on screen
 	
+	private GamePainter gamePainter;
+	
 	public static void main(String[] args) {
 		new Moletower();
 	}
 
 	public Moletower() {
 		this.path = new Path();
-		try {
-			this.enemies = new Vector<Enemy>();
-			this.enemiesToPaint = new Vector<Enemy>();
-			this.towers = new Vector<Tower>();
-			this.towersToPaint = new Vector<Tower>();
-			this.shots = new Vector<Shot>();
-			this.shotsToPaint = new Vector<Shot>();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		gameWindow = new GameWindow(this, this.path);
+		this.enemies = new Vector<Enemy>();
+		this.towers = new Vector<Tower>();
+		this.shots = new Vector<Shot>();
+		this.gamePainter = new GamePainter(this, this.path);
+		this.gameWindow = new GameWindow(this.gamePainter);
 		Thread gameThread = new Thread(this);
 		gameThread.start();
 	}
@@ -65,11 +53,8 @@ public class Moletower implements Runnable {
 
 	@SuppressWarnings("unchecked")
 	public void run() {
-
 		this.gameWindow.repaint();
 		timeSinceLastMove = System.currentTimeMillis();
-		startTime = timeSinceLastMove;
-		
 		/**
 		 * Main game loop
 		 */
@@ -89,18 +74,18 @@ public class Moletower implements Runnable {
 						this.shootTowers();
 						moveCounter++;
 						lastMoveTime = System.currentTimeMillis();
-						this.enemiesToPaint = (Vector<Enemy>) this.enemies.clone();
-						this.shotsToPaint = (Vector<Shot>) this.shots.clone();
+						this.gamePainter.setEnemiesToPaint((Vector<Enemy>) this.enemies.clone());
+						this.gamePainter.setShotsToPaint((Vector<Shot>) this.shots.clone());
 					} else {
 						Thread.sleep(moveInterval - timeSinceLastMove);
 					}
 				}
 				// Towers may be bought before the round is started, so fill the paint data
-				this.towersToPaint = (Vector<Tower>) this.towers.clone();
+				this.gamePainter.setTowerToPlace(this.towerToPlace);
+				this.gamePainter.setTowersToPaint((Vector<Tower>) this.towers.clone());
 				// Draw all changes that may have happened
 				this.gameWindow.repaint();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.exit(1);
 			}
@@ -174,16 +159,16 @@ public class Moletower implements Runnable {
 		if ((this.moveCounter > 200) && ((this.moveCounter + 33) % 37 == 0)) {
 			this.enemies.add(new Fastenemy(path));
 		}
-		if ((this.moveCounter > 300) && ((this.moveCounter + 33) % 33 == 0)) {
+		if ((this.moveCounter > 500) && ((this.moveCounter + 33) % 33 == 0)) {
 			this.enemies.add(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 700) && ((this.moveCounter + 88) % 22 == 0)) {
+		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 22 == 0)) {
 			this.enemies.add(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 8 == 0)) {
+		if ((this.moveCounter > 1500) && ((this.moveCounter + 88) % 18 == 0)) {
 			this.enemies.add(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 1200) && ((this.moveCounter + 33) % 14 == 0)) {
+		if ((this.moveCounter > 2000) && ((this.moveCounter + 33) % 14 == 0)) {
 			this.enemies.add(new Fastenemy(path));
 		}
 	}
@@ -204,62 +189,7 @@ public class Moletower implements Runnable {
 		}
 	}
 
-	/**
-	 * Draw the game. This is called by the GameWindow when it is repainted.
-	 * 
-	 * @param g The graphics object of the GameWindow
-	 */
-	public void draw(Graphics g) {
-		this.drawBackground(g);
-		if (this.roundActive) {
-			this.paintCounter++;
-			this.drawEnemies(g);
-			this.drawShots(g);
-		}
-		this.drawTowers(g);
-		this.drawStatus(g);
-		// Draw sidebar last, so it is the top layer
-		this.drawSidebar(g);
-		// The tower to place hovers over all
-		this.drawTowerToPlace(g);
-	}
 
-	/**
-	 * Paint the tower the user is trying to place
-	 * 
-	 * @param g
-	 */
-	private void drawTowerToPlace(Graphics g) {
-		if (this.placingTower) {
-			this.towerToPlace.paintComponent(g);
-		}
-	}
-
-	/**
-	 * The tower menu etc.
-	 * 
-	 * @param g
-	 */
-	private void drawSidebar(Graphics g) {
-		g.setColor(Color.BLACK);
-		g.fillRect(700, 0, 100, 600);
-		g.setColor(Color.GREEN);
-		g.fillRect(710, 50, 80, 30);
-		g.fillRect(710, 110, 80, 30);
-		if (this.moneyWarning) {
-			g.setColor(Color.RED);
-		} else {
-			g.setColor(Color.BLACK);
-		}
-		g.drawString("Firetower " + Firetower.basePrice + " $", 711, 70);
-		g.drawString("Fasttower " + Fasttower.basePrice + " $", 711, 130);
-		if (!this.roundActive) {
-			g.setColor(Color.GREEN);
-			g.fillRect(710, 500, 80, 30);
-			g.setColor(Color.BLACK);
-			g.drawString("START", 715, 515);
-		}
-	}
 
 	/**
 	 * Resolves all user action (Mouseclicks)
@@ -276,9 +206,8 @@ public class Moletower implements Runnable {
 				this.roundActive = true;
 			} else {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -351,65 +280,34 @@ public class Moletower implements Runnable {
 		}
 	}
 
-	private void drawShots(Graphics g) {
-		Iterator<Shot> shotIterator = this.shotsToPaint.iterator();
-		while (shotIterator.hasNext()) {
-			Shot currentShot = shotIterator.next();
-			currentShot.paintComponent(g);
-		}
+	public boolean isRoundActive() {
+		return this.roundActive;
 	}
 
-	private void drawStatus(Graphics g) {
-		long runtime = (System.currentTimeMillis() - this.startTime);
-		if (runtime < 1) {
-			runtime = 1;
-		}
-		// float fps = 1000 * this.moveCounter / (float) runtime;
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, 800, 20);
-		if (this.moneyWarning) {
-			g.setColor(Color.RED);
-		} else {
-			g.setColor(Color.WHITE);
-		}
-		String action = this.placingTower ? "PLACING TOWER" : "none";
-		g.drawString(String.format("Lives: %d Money: %d Move # %d Paint # %d Action: %s " + (this.moneyWarning?"NO MONEY":"OK"), this.lives, this.money, moveCounter, paintCounter, action), 10, 13);
-
+	public boolean isMoneyWarningActive() {
+		return this.moneyWarning;
 	}
 
-	private void drawEnemies(Graphics g) {
-		Iterator<Enemy> enemyIterator = this.enemiesToPaint.iterator();
-		while (enemyIterator.hasNext()) {
-			Enemy currentEnemy = enemyIterator.next();
-			currentEnemy.paintComponent(g);
-		}
+	public boolean isPlacingTower() {
+		return this.placingTower;
 	}
 
-	private void drawTowers(Graphics g) {
-		Iterator<Tower> towerIterator = this.towersToPaint.iterator();
-		while (towerIterator.hasNext()) {
-			Tower currentTower = towerIterator.next();
-			currentTower.paintComponent(g);
-		}
+	public Object getMoney() {
+		return this.money;
 	}
 
-	private void drawBackground(Graphics g) {
-		g.setColor(Color.YELLOW);
-		g.fillRect(0, 0, 800, 600);
-
-		g.setColor(Color.BLACK);
-		Iterator<Point> pathIterator = path.getPathPoints().iterator();
-		Point lastPoint = null;
-		Point nextPoint = null;
-		while (pathIterator.hasNext()) {
-			if (lastPoint != null) {
-				nextPoint = pathIterator.next();
-				g.drawLine(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y);
-				lastPoint = nextPoint;
-			} else {
-				lastPoint = pathIterator.next();
-			}
-		}
+	public Object getLives() {
+		return this.lives;
 	}
 
+	public Object getMoveCounter() {
+		return this.moveCounter;
+	}
+
+	public Object getUserAction() {
+		if(this.isPlacingTower()) {
+			return "placing tower";
+		};
+		return "-";
+	}
 }

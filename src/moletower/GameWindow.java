@@ -12,15 +12,15 @@ import javax.swing.JPanel;
 
 public class GameWindow extends JPanel implements MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
-	private Moletower game;
+	private GamePainter gamePainter;
 	public Point mousePosition;
 	public boolean mouseIsPressed;
 	private JFrame frame;
 
-	public GameWindow(Moletower game, Path path) {
+	public GameWindow(GamePainter gamePainter) {
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		this.game = game;
+		this.gamePainter = gamePainter;
 
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,7 +33,7 @@ public class GameWindow extends JPanel implements MouseListener, MouseMotionList
 
 	@Override
 	public void paintComponent(Graphics g) {
-		this.game.draw(g);
+		this.gamePainter.draw(g);
 	}
 
 	@Override
