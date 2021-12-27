@@ -10,14 +10,16 @@ public class GamePainter {
 	
 	private Moletower game;
 	private Path path;
+	private GameData gameData;
 	private Vector<Enemy> enemies; // The enemy data used for painting
 	private Vector<Shot> shots;
 	private Vector<Tower> towers;
 	private Tower towerToPlace;
 	
-	public GamePainter(Moletower game, Path path) {
+	public GamePainter(Moletower game, GameData gameData, Path path) {
 		this.game = game;
 		this.path = path;
+		this.gameData = gameData;
 		this.enemies = new Vector<Enemy>();
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
@@ -97,7 +99,7 @@ public class GamePainter {
 		} else {
 			g.setColor(Color.WHITE);
 		}
-		g.drawString(String.format("Lives: %d Money: %d Move # %d Action: %s " + (this.game.isMoneyWarningActive()?"NO MONEY":"OK"), this.game.getLives(), this.game.getMoney(), this.game.getMoveCounter(), this.game.getUserAction()), 10, 13);
+		g.drawString(String.format("Lives: %d Money: %d Action: %s " + (this.game.isMoneyWarningActive()?"NO MONEY":"OK"), this.gameData.getLives(), this.gameData.getMoney(), this.game.getUserAction()), 10, 13);
 
 	}
 
