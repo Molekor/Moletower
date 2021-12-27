@@ -32,11 +32,12 @@ public class GamePainter {
 	 */
 	public void draw(Graphics g) {
 		this.drawBackground(g);
+
+		this.drawTowers(g);
 		if (this.game.isRoundActive()) {
 			this.drawEnemies(g);
 			this.drawShots(g);
 		}
-		this.drawTowers(g);
 		this.drawStatus(g);
 		// Draw sidebar last, so it is the top layer
 		this.drawSidebar(g);
@@ -73,8 +74,8 @@ public class GamePainter {
 		} else {
 			g.setColor(Color.BLACK);
 		}
-		g.drawString("Firetower " + Firetower.basePrice + " $", 711, 70);
-		g.drawString("Fasttower " + Fasttower.basePrice + " $", 711, 130);
+		g.drawString("Firetower " + Firetower.basePrice + "$", 711, 70);
+		g.drawString("Fasttower " + Fasttower.basePrice + "$", 711, 130);
 		if (!this.game.isRoundActive()) {
 			g.setColor(Color.GREEN);
 			g.fillRect(710, 500, 80, 30);
@@ -120,16 +121,18 @@ public class GamePainter {
 	}
 
 	private void drawBackground(Graphics g) {
-		g.setColor(Color.YELLOW);
+		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, 800, 600);
-
-		g.setColor(Color.BLACK);
 		Iterator<Point> pathIterator = path.getPathPoints().iterator();
 		Point lastPoint = null;
 		Point nextPoint = null;
 		while (pathIterator.hasNext()) {
 			if (lastPoint != null) {
 				nextPoint = pathIterator.next();
+				g.setColor(Color.DARK_GRAY);
+				GraphicsHelper.drawThickLine(g, lastPoint, nextPoint, this.path.getThickness());
+				g.fillArc(nextPoint.x - (this.path.getThickness()/2)+1, nextPoint.y - (this.path.getThickness()/2)+1, this.path.getThickness()-2, this.path.getThickness()-2, 0, 360);
+				g.setColor(Color.RED);
 				g.drawLine(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y);
 				lastPoint = nextPoint;
 			} else {

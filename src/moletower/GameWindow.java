@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 public class GameWindow extends JPanel implements MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 	private GamePainter gamePainter;
-	public Point mousePosition;
+	public Point mousePosition = new Point(1,1);
 	public boolean mouseIsPressed;
 	private JFrame frame;
 
@@ -61,14 +61,14 @@ public class GameWindow extends JPanel implements MouseListener, MouseMotionList
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		this.mousePosition = new Point(e.getX(), e.getY());
-		this.mouseIsPressed = true;
+		this.mouseIsPressed = false;
 
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		this.mousePosition = new Point(e.getX(), e.getY());
-		this.mouseIsPressed = true;
+		this.mouseIsPressed = false;
 	}
 
 	@Override

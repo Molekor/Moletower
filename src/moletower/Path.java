@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Path {
 
+	private static int thickness = 20;
 	List<Point> pathPoints;
 
 	public Path() {
@@ -21,4 +22,9 @@ public class Path {
 	public List<Point> getPathPoints() {
 		return this.pathPoints;
 	}
+	
+	public int getThickness() {
+		return Path.thickness ;
+	}
+
 }

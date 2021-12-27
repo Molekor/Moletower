@@ -11,7 +11,11 @@ public abstract class Tower {
 	protected long lastShootingTime = 0;
 	protected int price;
 	protected boolean isActive = false;
+	protected int radius;
+	protected boolean canBePlaced = false;
 	
+
+
 	public Tower(Point position) {
 		this.position = position;
 	}
@@ -32,7 +36,15 @@ public abstract class Tower {
 		}
 		return null;
 	}
+	
+	public boolean canBePlaced() {
+		return canBePlaced;
+	}
 
+	public void setCanBePlaced(boolean canBePlaced) {
+		this.canBePlaced = canBePlaced;
+	}
+	
 	public Point getPosition() {
 		return this.position;
 	}
@@ -47,5 +59,9 @@ public abstract class Tower {
 
 	public int getPrice() {
 		return this.price;
+	}
+
+	public double getSize() {
+		return this.radius;
 	}
 }

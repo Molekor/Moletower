@@ -83,22 +83,25 @@ public class MainMover {
 		}
 		// @TODO develop an algorithm and data structure for spawning enemies that also
 		// holds the path(s)
-		if (this.moveCounter % 55 == 0) {
+		if (this.moveCounter % 40 == 0) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 200) && ((this.moveCounter + 33) % 37 == 0)) {
+		if ((this.moveCounter > 500) && ((this.moveCounter + 7) % 50 == 0)) {
+			this.gameData.addEnemy(new Slowenemy(path));
+		}
+		if ((this.moveCounter > 700) && ((this.moveCounter + 33) % 78 == 0)) {
 			this.gameData.addEnemy(new Fastenemy(path));
 		}
-		if ((this.moveCounter > 500) && ((this.moveCounter + 33) % 33 == 0)) {
+		if ((this.moveCounter > 1000) && ((this.moveCounter + 33) % 33 == 0)) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 1000) && ((this.moveCounter + 88) % 22 == 0)) {
+		if ((this.moveCounter > 1500) && ((this.moveCounter + 88) % 22 == 0)) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 1500) && ((this.moveCounter + 88) % 18 == 0)) {
+		if ((this.moveCounter > 2000) && ((this.moveCounter + 88) % 18 == 0)) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 2000) && ((this.moveCounter + 33) % 14 == 0)) {
+		if ((this.moveCounter > 3000) && ((this.moveCounter + 33) % 14 == 0)) {
 			this.gameData.addEnemy(new Fastenemy(path));
 		}
 	}

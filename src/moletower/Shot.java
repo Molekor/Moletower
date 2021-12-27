@@ -9,13 +9,15 @@ public class Shot {
 	private double x;
 	private double y;
 	private double angle;
-	private double speed = 4;
+	private double speed =15;
 	private double range;
 	private double movedDistance = 0;
 	private long diedAt = 0;
 	private int deadDuration = 1000;
 	private boolean canBeDeleted = false;
 	private boolean isLiving = true;
+	private int length = 20;
+	private int thickness = 3;
 
 	public Shot(Point position, double angle, double range) {
 		this.x = position.x;
@@ -26,12 +28,10 @@ public class Shot {
 
 	public void paintComponent(Graphics g) {
 		if (this.isLiving) {
-			g.setColor(Color.RED);
-			int dx = (int) (5 * Math.cos(this.angle));
-			int dy = (int) (5 * Math.sin(this.angle));
-			g.drawLine((int) this.x - dx, (int) this.y - dy, (int) this.x + dx, (int) this.y + dy);
+			g.setColor(Color.CYAN);
+			GraphicsHelper.drawThickLineFromAngle(g, new Point((int)this.x, (int)this.y), this.angle, this.thickness , this.length);
 		} else {
-			g.setColor(Color.RED);
+			g.setColor(Color.BLACK);
 			g.fillArc((int) this.x - 2, (int) this.y - 2, 4, 4, 0, 360);
 
 		}

@@ -1,6 +1,7 @@
 package moletower;
 
 import java.awt.Point;
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -85,8 +86,6 @@ public class Moletower implements Runnable {
 	 */
 	private void checkUserAction() {
 		
-		this.moneyWarning = false;
-		
 		// Check for start of round button
 		if (this.roundActive == false && this.gameWindow.mouseIsPressed) {
 			int mouseX = this.gameWindow.mousePosition.x;
@@ -107,26 +106,55 @@ public class Moletower implements Runnable {
 		// User is placing tower and releases the mouse button: Drop the tower at the
 		// mouse position
 		if (this.placingTower) {
-			if (!this.gameWindow.mouseIsPressed && this.gameWindow.mousePosition.x < 700) {
+			Point mousePosition = this.gameWindow.mousePosition;
+			this.towerToPlace.setPosition(this.gameWindow.mousePosition);
+			double minDistance = Double.MAX_VALUE;
+			Iterator<Point> pathPointIterator = this.path.getPathPoints().iterator();
+			Point thisPathPoint = pathPointIterator.next();
+			Point nextPathPoint;
+			while (pathPointIterator.hasNext()) {
+				nextPathPoint = pathPointIterator.next();
+				double distance = MathHelper.getDistancePointToSegment(mousePosition, thisPathPoint, nextPathPoint) - (this.path.getThickness() / 2);
+				if (distance < minDistance) {
+					minDistance = distance;
+				}
+				thisPathPoint = nextPathPoint;
+			}
+			Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
+			while (towerIterator.hasNext()) {
+				Tower otherTower = towerIterator.next();
+				double distance = MathHelper.getDistance(this.towerToPlace.getPosition(), otherTower.getPosition()) - otherTower.getSize();
+				if (distance < minDistance) {
+					minDistance = distance;
+				}
+			}
+			this.towerToPlace.setCanBePlaced(minDistance > (this.towerToPlace.getSize()));
+		
+			if (this.gameWindow.mouseIsPressed) {
+				if (this.towerToPlace.canBePlaced && (this.gameWindow.mousePosition.x < 700)) {
+						this.towerToPlace.setActive(true);
+						this.gameData.addTower(towerToPlace);
+						this.gameData.adjustMoney(-towerToPlace.getPrice());
+				}
 				this.placingTower = false;
-				this.towerToPlace.setActive(true);
-				this.gameData.addTower(towerToPlace);
-				this.gameData.adjustMoney(-towerToPlace.getPrice());
-			} else {
-				this.towerToPlace.setPosition(this.gameWindow.mousePosition);
+				this.towerToPlace = null;
 			}
 		} else {
 			if (this.gameWindow.mouseIsPressed) {
+				this.moneyWarning = false;
+				// @TODO We tell the Window that we processed the click. Remove this hack by using proper MouseListeners!
+				this.gameWindow.mouseIsPressed = false;
 				int mouseX = this.gameWindow.mousePosition.x;
 				int mouseY = this.gameWindow.mousePosition.y;
 				if (mouseX > 710 && mouseX < 790 && mouseY > 50 && mouseY < 80) {
 					this.placingTower = true;
-					this.towerToPlace = new Firetower(new Point(0, 0));
+					this.towerToPlace = new Firetower(this.gameWindow.mousePosition);
 				}
 				if (mouseX > 710 && mouseX < 790 && mouseY > 110 && mouseY < 140) {
 					this.placingTower = true;
-					this.towerToPlace = new Fasttower(new Point(0, 0));
+					this.towerToPlace = new Fasttower(this.gameWindow.mousePosition);
 				}
+
 				// Check if we have the money to place the selected tower
 				if ((this.towerToPlace != null) && (this.towerToPlace.getPrice() > this.gameData.getMoney())) {
 					this.placingTower = false;
