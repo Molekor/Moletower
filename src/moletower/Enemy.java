@@ -1,10 +1,7 @@
 package moletower;
 
-import java.awt.Image;
 import java.awt.Point;
 import java.util.List;
-
-import javax.swing.ImageIcon;
 
 /**
  * Evil things that follow a path along the map to reach the exit.
