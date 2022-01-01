@@ -8,9 +8,11 @@ public class MainMover {
 	private GameData gameData;
 	private int moveCounter = 0;
 	private Path path;
+	private MathHelper mathHelper;
 
-	public MainMover(GameData gameData, Path path) {
+	public MainMover(GameData gameData, MathHelper mathHelper, Path path) {
 		this.gameData = gameData;
+		this.mathHelper = mathHelper;
 		this.path = path;
 	}
 
@@ -55,7 +57,7 @@ public class MainMover {
 			if (!currentEnemy.isLiving()) {
 				continue;
 			}
-			double currentDistance = MathHelper.getDistance(startPoint, currentEnemy.getPosition());
+			double currentDistance = this.mathHelper.getDistance(startPoint, currentEnemy.getPosition());
 			if (currentDistance < smallestDistance) {
 				smallestDistance = currentDistance;
 				closestEnemy = currentEnemy;
@@ -142,7 +144,7 @@ public class MainMover {
 					if (!currentEnemy.isLiving()) {
 						continue;
 					}
-					if (MathHelper.getDistance(currentShot.getPosition(), currentEnemy.getPosition()) <= (currentEnemy.getSize() / 2)) {
+					if (this.mathHelper.getDistance(currentShot.getPosition(), currentEnemy.getPosition()) <= (currentEnemy.getSize() / 2)) {
 						currentShot.hit();
 						currentEnemy.hit();
 						if (!currentEnemy.isLiving) {

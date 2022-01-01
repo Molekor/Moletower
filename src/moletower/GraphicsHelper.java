@@ -5,7 +5,7 @@ import java.awt.Point;
 
 public class GraphicsHelper {
 
-	public static void drawThickLine(Graphics g, Point p1, Point p2, int thickness) {
+	public void drawThickLine(Graphics g, Point p1, Point p2, int thickness) {
 		double angle = MathHelper.calculateAngle(p1.x, p1.y, p2.x, p2.y);
 		double dx = (-(thickness/2) * Math.sin(angle));
 		double dy = ((thickness/2) * Math.cos(angle));
@@ -24,7 +24,7 @@ public class GraphicsHelper {
 		g.fillPolygon(xPoints, yPoints, 4);
 	}
 
-	public static void drawThickLineFromAngle(Graphics g, Point point, double angle, int thickness, int length) {
+	public void drawThickLineFromAngle(Graphics g, Point point, double angle, int thickness, int length) {
 		int dx = (int) ((length/2) * Math.cos(angle));
 		int dy = (int) ((length/2) * Math.sin(angle));
 		drawThickLine(g, point, new Point(point.x + dx, point.y + dy),thickness);
