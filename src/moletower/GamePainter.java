@@ -2,9 +2,12 @@ package moletower;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.util.Iterator;
 import java.util.Vector;
+
+import javax.swing.ImageIcon;
 
 public class GamePainter {
 	
@@ -15,9 +18,11 @@ public class GamePainter {
 	private Vector<Shot> shots;
 	private Vector<Tower> towers;
 	private Tower towerToPlace;
+	private GraphicsHelper graphicsHelper;
 	
-	public GamePainter(Moletower game, GameData gameData, Path path) {
+	public GamePainter(Moletower game, GraphicsHelper graphicsHelper, GameData gameData, Path path) {
 		this.game = game;
+		this.graphicsHelper = graphicsHelper;
 		this.path = path;
 		this.gameData = gameData;
 		this.enemies = new Vector<Enemy>();
@@ -54,7 +59,7 @@ public class GamePainter {
 	 */
 	private void drawTowerToPlace(Graphics g) {
 		if (this.game.isPlacingTower() && (this.towerToPlace != null)) {
-			this.towerToPlace.paintComponent(g);
+			this.drawTower(g, towerToPlace);
 		}
 	}
 
@@ -88,7 +93,15 @@ public class GamePainter {
 		Iterator<Shot> shotIterator = this.shots.iterator();
 		while (shotIterator.hasNext()) {
 			Shot currentShot = shotIterator.next();
-			currentShot.paintComponent(g);
+				if (currentShot.isLiving()) {
+					g.setColor(Color.CYAN);
+					
+					this.graphicsHelper.drawThickLineFromAngle(g, currentShot.getPosition(), currentShot.getAngle(), 2 , 20);
+				} else {
+					g.setColor(Color.BLACK);
+					g.fillArc((int) currentShot.getPosition().x - 2, (int) currentShot.getPosition().y - 2, 4, 4, 0, 360);
+
+				}
 		}
 	}
 
@@ -108,16 +121,43 @@ public class GamePainter {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
-			currentEnemy.paintComponent(g);
-		}
+			
+				if (currentEnemy.hasReachedExit) {
+					return;
+				}
+				if (currentEnemy.isLiving) {
+					ImageIcon ii = new ImageIcon(currentEnemy.getImagePath());
+					Image image = ii.getImage();
+					g.drawImage(image, (int) currentEnemy.x - image.getWidth(null) / 2, (int) currentEnemy.y - image.getHeight(null) / 2, null);
+				} else {
+					g.setColor(Color.GREEN);
+					g.fillRect((int) currentEnemy.x - 2, (int) currentEnemy.y - 2, 4, 4);
+				}
+			}		
 	}
 
 	private void drawTowers(Graphics g) {
 		Iterator<Tower> towerIterator = this.towers.iterator();
 		while (towerIterator.hasNext()) {
 			Tower currentTower = towerIterator.next();
-			currentTower.paintComponent(g);
+			drawTower(g, currentTower);
 		}
+	}
+
+	private void drawTower(Graphics g, Tower currentTower) {
+		g.setColor(currentTower.getColor());
+		if (currentTower.isActive || currentTower.canBePlaced) {
+			g.setColor(currentTower.getColor());
+		} else {
+			g.setColor(Color.DARK_GRAY);
+		}
+		g.fillArc(
+				(int) (currentTower.getPosition().x - currentTower.getSize()), (int) (currentTower.getPosition().y - currentTower.getSize()),
+				(int) currentTower.getSize() * 2, (int) currentTower.getSize() * 2, 0, 360
+			);
+		g.drawArc(currentTower.getPosition().x - currentTower.getRange(), currentTower.getPosition().y - currentTower.getRange(), currentTower.getRange() * 2, currentTower.getRange() * 2, 0, 360);
+		g.setColor(Color.BLACK);
+		g.fillArc(currentTower.getPosition().x - 5, currentTower.getPosition().y - 5, 10, 10, 0,360);
 	}
 
 	private void drawBackground(Graphics g) {
@@ -130,7 +170,7 @@ public class GamePainter {
 			if (lastPoint != null) {
 				nextPoint = pathIterator.next();
 				g.setColor(Color.DARK_GRAY);
-				GraphicsHelper.drawThickLine(g, lastPoint, nextPoint, this.path.getThickness());
+				this.graphicsHelper.drawThickLine(g, lastPoint, nextPoint, this.path.getThickness());
 				g.fillArc(nextPoint.x - (this.path.getThickness()/2)+1, nextPoint.y - (this.path.getThickness()/2)+1, this.path.getThickness()-2, this.path.getThickness()-2, 0, 360);
 				g.setColor(Color.RED);
 				g.drawLine(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y);

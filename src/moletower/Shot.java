@@ -26,17 +26,6 @@ public class Shot {
 		this.range = range;
 	}
 
-	public void paintComponent(Graphics g) {
-		if (this.isLiving) {
-			g.setColor(Color.CYAN);
-			GraphicsHelper.drawThickLineFromAngle(g, new Point((int)this.x, (int)this.y), this.angle, this.thickness , this.length);
-		} else {
-			g.setColor(Color.BLACK);
-			g.fillArc((int) this.x - 2, (int) this.y - 2, 4, 4, 0, 360);
-
-		}
-	}
-
 	public Point getPosition() {
 		return new Point((int) this.x, (int) this.y);
 	}
@@ -60,6 +49,10 @@ public class Shot {
 		}
 	}
 
+	public double getAngle() {
+		return this.angle;
+	}
+	
 	public boolean canBeDeleted() {
 		return this.canBeDeleted;
 	}

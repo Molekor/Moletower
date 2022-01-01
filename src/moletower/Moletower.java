@@ -28,17 +28,30 @@ public class Moletower implements Runnable {
 	private GamePainter gamePainter;
 	private MainMover mover;
 	private GameData gameData;
-	
+	private MathHelper mathHelper;
+	private GraphicsHelper graphicsHelper;
+
 	public static void main(String[] args) {
 		new Moletower();
 	}
 
 	public Moletower() {
 		this.path = new Path();
-		this.gameData = new GameData(this);
-		this.gamePainter = new GamePainter(this, this.gameData, this.path);
+		
+		this.path.addPathPoint(new Point(10, 50));
+		this.path.addPathPoint(new Point(100, 60));
+		this.path.addPathPoint(new Point(210, 150));
+		this.path.addPathPoint(new Point(200, 250));
+		this.path.addPathPoint(new Point(650, 550));
+		this.path.addPathPoint(new Point(600, 50));
+		this.path.addPathPoint(new Point(60, 500));
+		
+		this.gameData = new GameData();
+		this.mathHelper = new MathHelper();
+		this.graphicsHelper = new GraphicsHelper();
+		this.gamePainter = new GamePainter(this, this.graphicsHelper, this.gameData, this.path);
 		this.gameWindow = new GameWindow(this.gamePainter);
-		this.mover = new MainMover(this.gameData, this.path);
+		this.mover = new MainMover(this.gameData, this.mathHelper, this.path);
 		Thread gameThread = new Thread(this);
 		gameThread.start();
 	}
@@ -62,6 +75,7 @@ public class Moletower implements Runnable {
 					// Only move if at least the moveInterval time has passed, else pause
 					if (timeSinceLastMove > moveInterval) {
 						this.mover.move();
+						this.gameData.addTick();
 						lastMoveTime = System.currentTimeMillis();
 						this.gamePainter.setEnemiesToPaint((Vector<Enemy>) this.gameData.getEnemies().clone());
 						this.gamePainter.setShotsToPaint((Vector<Shot>) this.gameData.getShots().clone());
@@ -148,11 +162,11 @@ public class Moletower implements Runnable {
 				int mouseY = this.gameWindow.mousePosition.y;
 				if (mouseX > 710 && mouseX < 790 && mouseY > 50 && mouseY < 80) {
 					this.placingTower = true;
-					this.towerToPlace = new Firetower(this.gameWindow.mousePosition);
+					this.towerToPlace = new Firetower(this.gameData, this.gameWindow.mousePosition);
 				}
 				if (mouseX > 710 && mouseX < 790 && mouseY > 110 && mouseY < 140) {
 					this.placingTower = true;
-					this.towerToPlace = new Fasttower(this.gameWindow.mousePosition);
+					this.towerToPlace = new Fasttower(this.gameData, this.gameWindow.mousePosition);
 				}
 
 				// Check if we have the money to place the selected tower

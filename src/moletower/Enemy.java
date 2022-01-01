@@ -1,6 +1,5 @@
 package moletower;
 
-import java.awt.Graphics;
 import java.awt.Point;
 import java.util.List;
 
@@ -25,6 +24,8 @@ public abstract class Enemy {
 	protected int value; // how much money do we earn for disposing this enemy
 	protected int lives; // how many lives has the enemy left
 	protected int baseLives; // starting lives of the enemy class
+	protected String imagePath;
+	protected int size;
 
 	/**
 	 * Constructor. Sets the path points this enemy will follow, and sets the first
@@ -32,8 +33,16 @@ public abstract class Enemy {
 	 * @param path
 	 * @throws Exception
 	 */
-	Enemy(Path path) throws Exception {
+	public Enemy(Path path, String imagePath, double speed, int value, int lives, int deadDuration, int baseSize) throws Exception {
 		this.pathPoints = path.getPathPoints();
+		this.speed = speed;
+		this.value = value;
+		this.lives = lives;
+		this.deadDuration = deadDuration;
+		this.speed = speed;
+		this.imagePath = imagePath;
+		this.size = baseSize;
+		
 		if (pathPoints.size() < 2) {
 			throw new Exception("Too few pathpoints, need at least 2!");
 		}
@@ -41,8 +50,6 @@ public abstract class Enemy {
 		this.x = start.x;
 		this.y = start.y;
 	}
-
-	public abstract void paintComponent(Graphics g);
 
 	/**
 	 * Advance this enemy on its path.
@@ -103,7 +110,9 @@ public abstract class Enemy {
 	 * Enemy is viewed as a circle to keep things simple.
 	 * @return radius of the enemy in pixels
 	 */
-	public abstract double getSize();
+	public int getSize() {
+		return size;
+	}
 
 	/**
 	 * The enemy has been hit by a shot of a tower and loses a life point.
@@ -135,5 +144,17 @@ public abstract class Enemy {
 
 	protected int getValue() {
 		return this.value;
+	}
+
+	protected  String getImagePath() {
+		return this.imagePath;
+	}
+	
+	protected int getLives() {
+		return this.lives;
+	}
+	
+	protected double getSpeed() {
+		return this.speed;
 	}
 }

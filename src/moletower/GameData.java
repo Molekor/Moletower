@@ -12,13 +12,15 @@ public class GameData {
 	private Vector<Shot> shots;
 	private int lives;
 	private int money;
+	private long tick;
 	
-	public GameData(Moletower moletower) {
+	public GameData() {
 		this.enemies = new Vector<Enemy>();
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
 		this.lives = 50;
 		this.money = 90;
+		this.tick = 0;
 	}
 
 	public Vector<Tower> getTowers() {
@@ -56,8 +58,17 @@ public class GameData {
 	public void adjustMoney(int moneyToAdd) {
 		this.money += moneyToAdd;
 	}
+	
 	public int getMoney() {
 		return this.money;
+	}
+	
+	public void addTick() {
+		this.tick++;
+	}
+	
+	public long getTick() {
+		return this.tick;
 	}
 }
 

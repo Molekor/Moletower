@@ -1,11 +1,5 @@
 package moletower;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Image;
-
-import javax.swing.ImageIcon;
-
 /**
  * A fast but small enemy
  * 
@@ -14,37 +8,15 @@ import javax.swing.ImageIcon;
  */
 public class Fastenemy extends Enemy {
 
-	private Image image;
-	public static int baseLives = 2;
+	private static final int baseLives = 2;
+	private static final int baseValue = 3;
+	private static final double baseSpeed = 3.2;
+	private static final int deadDuration = 800;
+	private static final String imagePath = "resources/Fastenemy.png";
+	private static final int baseSize = 15;
 	
 	Fastenemy(Path path) throws Exception {
-		super(path);
-		ImageIcon ii = new ImageIcon("resources/Fastenemy.png");
-		image = ii.getImage();
-		this.deadDuration = 800;
-		this.speed = 3.8;
-		this.value = 3;
-		this.lives = Fastenemy.baseLives;
-	}
-
-	@Override
-	public void paintComponent(Graphics g) {
-		if (this.hasReachedExit) {
-			return;
-		}
-		if (this.isLiving) {
-			g.drawImage(image, (int) this.x - image.getWidth(null) / 2, (int) this.y - image.getHeight(null) / 2, null);
-		} else {
-			g.setColor(Color.GREEN);
-			g.fillRect((int) this.x - 2, (int) this.y - 2, 4, 4);
-		}
-	}
-
-	@Override
-	public double getSize() {
-		int height = this.image.getHeight(null);
-		int width = this.image.getWidth(null);
-		return Math.sqrt(width * width + height * height);
+		super(path, imagePath, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
 	}
 
 }

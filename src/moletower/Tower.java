@@ -1,26 +1,30 @@
 package moletower;
 
-import java.awt.Graphics;
+import java.awt.Color;
 import java.awt.Point;
 
 public abstract class Tower {
 
 	protected Point position;
 	protected int range;
-	protected int cooldown;
-	protected long lastShootingTime = 0;
+	protected long cooldown;
 	protected int price;
 	protected boolean isActive = false;
 	protected int radius;
 	protected boolean canBePlaced = false;
-	
+	protected GameData gameData;
+	protected long lastShootingTick = -1000;
+	protected Color color; // @TODO Don't store paint information in the data object!
 
-
-	public Tower(Point position) {
+	protected Tower(GameData gameData, Point position, int range, int cooldown, int price, int radius, Color color) {
+		this.gameData = gameData;
 		this.position = position;
+		this.range = range;
+		this.cooldown = cooldown;
+		this.price = price;
+		this.radius = radius;
+		this.color = color;
 	}
-
-	public abstract void paintComponent(Graphics g);
 
 	public Shot shoot(Point target) {
 		if (target == null) {
@@ -29,8 +33,9 @@ public abstract class Tower {
 		if (MathHelper.getDistance(target, position) > range) {
 			return null;
 		}
-		if (System.currentTimeMillis() - lastShootingTime > cooldown) {
-			lastShootingTime = System.currentTimeMillis();
+		if ((this.gameData.getTick() - this.lastShootingTick) > this.cooldown) {
+
+			this.lastShootingTick  = this.gameData.getTick();
 			double angle = MathHelper.calculateAngle(this.position.x, this.position.y, target.x, target.y);
 			return new Shot(position, angle, this.range);
 		}
@@ -63,5 +68,13 @@ public abstract class Tower {
 
 	public double getSize() {
 		return this.radius;
+	}
+	
+	public int getRange() {
+		return this.range;
+	}
+
+	public Color getColor() {
+		return this.color;
 	}
 }
