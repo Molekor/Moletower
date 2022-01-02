@@ -16,11 +16,10 @@ class TowerTest {
 		public static final int baseRange = 100;
 		public static final int baseCooldown = 2;
 		public static final int baseRadius = 10;
-		
 		public static final Color baseColor = Color.BLACK;
 		
-		public TestTower(GameData gameData, Point position) {
-			super(gameData, position, baseRange, baseCooldown, basePrice, baseRadius, baseColor);
+		public TestTower(GameData gameData) {
+			super(gameData, new Point(1,1),baseRange, baseCooldown, basePrice, baseRadius, baseColor);
 		}		
 	}
 	
@@ -32,7 +31,7 @@ class TowerTest {
 	void setupTestTower() {
 		this.gameData = new GameData();
 		this.towerPosition = new Point(1,1);
-		this.testTower = new TestTower(this.gameData, this.towerPosition);
+		this.testTower = new TestTower(this.gameData);
 	}
 	
 	@Test

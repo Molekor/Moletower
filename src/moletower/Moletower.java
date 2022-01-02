@@ -1,6 +1,12 @@
 package moletower;
 
+import java.awt.Button;
+import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -10,23 +16,21 @@ import java.util.Vector;
  * @author Molekor
  *
  */
-public class Moletower implements Runnable {
+public class Moletower extends MouseAdapter implements Runnable, ActionListener {
 
 	private long lastMoveTime; // time we last moved the shots and enemies
 	private long timeSinceLastMove = 0; // how long has it been since the last move
 	private static int moveInterval = 40; // minimal interval between moves in ms, this represents overall game speed
 	private GameWindow gameWindow; // Main window of the game that handles basic I/O
-
-
 	private Path path; // The path all enemies will follow to the exit
-	private boolean placingTower = false; // Is the user actively placing a tower?
-	private Tower towerToPlace; // The tower instance that the user is trying to place
-	
-	private GamePainter gamePainter;
+	private GamePanel gamePanel;
 	private MainMover mover;
 	private GameData gameData;
-	private MathHelper mathHelper;
 	private GraphicsHelper graphicsHelper;
+	private ButtonPanel buttonPanel;
+	private Button firetowerButton;
+	private Button fasttowerButton;
+	private Button startButton;
 
 	public static void main(String[] args) {
 		new Moletower();
@@ -44,11 +48,23 @@ public class Moletower implements Runnable {
 		this.path.addPathPoint(new Point(60, 500));
 		
 		this.gameData = new GameData();
-		this.mathHelper = new MathHelper();
 		this.graphicsHelper = new GraphicsHelper();
-		this.gamePainter = new GamePainter(this.graphicsHelper, this.gameData, this.path);
-		this.gameWindow = new GameWindow(this.gamePainter);
-		this.mover = new MainMover(this.gameData, this.mathHelper, this.path);
+		this.gamePanel = new GamePanel(this.graphicsHelper, this.gameData, this.path);
+		this.gamePanel.addMouseListener(this);
+		this.buttonPanel = new ButtonPanel();
+		
+		this.firetowerButton = new Button("Firetower");
+		this.fasttowerButton = new Button("Fasttower");
+		this.startButton = new Button("Start");
+		this.firetowerButton.addActionListener(this);
+		this.fasttowerButton.addActionListener(this);
+		this.startButton.addActionListener(this);
+		this.buttonPanel.addButton(this.firetowerButton);
+		this.buttonPanel.addButton(this.fasttowerButton);
+		this.buttonPanel.addButton(this.startButton);
+		
+		this.gameWindow = new GameWindow(this.gamePanel, this.buttonPanel);
+		this.mover = new MainMover(this.gameData, this.path);
 		Thread gameThread = new Thread(this);
 		gameThread.start();
 	}
@@ -63,28 +79,31 @@ public class Moletower implements Runnable {
 		 */
 		while (true) {
 			try {
-				// Always check what the user is doing
-				// @TODO Replace with proper mouse listeners etc.
-				this.checkUserAction();
-				// Game element actions, if the game is active
-				if (this.gameData.isGameActive()) {
-					timeSinceLastMove = System.currentTimeMillis() - lastMoveTime;
-					// Only move if at least the moveInterval time has passed, else pause
-					if (timeSinceLastMove > moveInterval) {
+				timeSinceLastMove = System.currentTimeMillis() - lastMoveTime;
+				// Only move if at least the moveInterval time has passed, else pause
+				if (timeSinceLastMove > moveInterval) {
+					if (this.gameData.isGameActive()) {
 						this.mover.move();
 						this.gameData.addTick();
-						lastMoveTime = System.currentTimeMillis();
-						this.gamePainter.setEnemiesToPaint((Vector<Enemy>) this.gameData.getEnemies().clone());
-						this.gamePainter.setShotsToPaint((Vector<Shot>) this.gameData.getShots().clone());
-					} else {
-						Thread.sleep(moveInterval - timeSinceLastMove);
 					}
+					lastMoveTime = System.currentTimeMillis();
+				} else {
+					Thread.sleep(moveInterval - timeSinceLastMove);
 				}
-				// Towers may be bought before the round is started, so fill the paint data
-				this.gamePainter.setTowerToPlace(this.towerToPlace);
-				this.gamePainter.setTowersToPaint((Vector<Tower>) this.gameData.getTowers().clone());
+				if (this.gameData.getTowerToPlace() != null) {
+					int mouseX = MouseInfo.getPointerInfo().getLocation().x - this.gamePanel.getLocationOnScreen().x;
+					int mouseY = MouseInfo.getPointerInfo().getLocation().y - this.gamePanel.getLocationOnScreen().y;
+					this.gameData.getTowerToPlace().setCanBePlaced(this.checkDistance(this.gameData.getTowerToPlace()));
+					this.gameData.getTowerToPlace().setPosition(new Point(mouseX, mouseY));
+					this.gamePanel.setTowerToPlace(this.gameData.getTowerToPlace());
+				} else {
+					this.gamePanel.setTowerToPlace(null);
+				}
+				this.gamePanel.setTowersToPaint((Vector<Tower>) this.gameData.getTowers().clone());
+				this.gamePanel.setEnemiesToPaint((Vector<Enemy>) this.gameData.getEnemies().clone());
+				this.gamePanel.setShotsToPaint((Vector<Shot>) this.gameData.getShots().clone());
 				// Draw all changes that may have happened
-				this.gameWindow.repaint();
+				this.gamePanel.repaint();
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -92,98 +111,65 @@ public class Moletower implements Runnable {
 		}
 	}
 
-	/**
-	 * Resolves all user action (Mouseclicks)
-	 */
-	private void checkUserAction() {
-		
-		// Check for start of round button
-		if (this.gameData.isGameActive() == false && this.gameWindow.mouseIsPressed) {
-			int mouseX = this.gameWindow.mousePosition.x;
-			int mouseY = this.gameWindow.mousePosition.y;
-			if (mouseX > 710 && mouseX < 790 && mouseY > 500 && mouseY < 530) {
-				this.gameData.setGameActive(true);
-			} else {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+	private boolean checkDistance(Tower towerToPlace) {
+		double minDistance = Double.MAX_VALUE;
+		Iterator<Point> pathPointIterator = this.path.getPathPoints().iterator();
+		Point thisPathPoint = pathPointIterator.next();
+		Point nextPathPoint;
+		while (pathPointIterator.hasNext()) {
+			nextPathPoint = pathPointIterator.next();
+			double distance = MathHelper.getDistancePointToSegment(this.gameData.getTowerToPlace().getPosition(), thisPathPoint, nextPathPoint) - (this.path.getThickness() / 2);
+			if (distance < minDistance) {
+				minDistance = distance;
+			}
+			thisPathPoint = nextPathPoint;
+		}
+		Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
+		while (towerIterator.hasNext()) {
+			Tower otherTower = towerIterator.next();
+			double distance = MathHelper.getDistance(this.gameData.getTowerToPlace().getPosition(), otherTower.getPosition()) - otherTower.getSize();
+			if (distance < minDistance) {
+				minDistance = distance;
 			}
 		}
+		return minDistance > (this.gameData.getTowerToPlace().getSize());
+	}
 
-		// Check for tower placement
-		// TODO: Use proper Java UI items!
-		// User is placing tower and releases the mouse button: Drop the tower at the
-		// mouse position
-		if (this.placingTower) {
-			Point mousePosition = this.gameWindow.mousePosition;
-			this.towerToPlace.setPosition(this.gameWindow.mousePosition);
-			double minDistance = Double.MAX_VALUE;
-			Iterator<Point> pathPointIterator = this.path.getPathPoints().iterator();
-			Point thisPathPoint = pathPointIterator.next();
-			Point nextPathPoint;
-			while (pathPointIterator.hasNext()) {
-				nextPathPoint = pathPointIterator.next();
-				double distance = MathHelper.getDistancePointToSegment(mousePosition, thisPathPoint, nextPathPoint) - (this.path.getThickness() / 2);
-				if (distance < minDistance) {
-					minDistance = distance;
-				}
-				thisPathPoint = nextPathPoint;
-			}
-			Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
-			while (towerIterator.hasNext()) {
-				Tower otherTower = towerIterator.next();
-				double distance = MathHelper.getDistance(this.towerToPlace.getPosition(), otherTower.getPosition()) - otherTower.getSize();
-				if (distance < minDistance) {
-					minDistance = distance;
-				}
-			}
-			this.towerToPlace.setCanBePlaced(minDistance > (this.towerToPlace.getSize()));
-		
-			if (this.gameWindow.mouseIsPressed) {
-				if (this.towerToPlace.canBePlaced && (this.gameWindow.mousePosition.x < 700)) {
-						this.towerToPlace.setActive(true);
-						this.gameData.addTower(towerToPlace);
-						this.gameData.adjustMoney(-towerToPlace.getPrice());
-				}
-				this.placingTower = false;
-				this.towerToPlace = null;
-			}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == this.firetowerButton) {
+			this.gameData.setMoneyWarning(false);
+				this.gameData.setTowerToPlace(new Firetower(this.gameData, this.gamePanel.mousePosition));		
+		} else if (e.getSource() == this.fasttowerButton) {
+			this.gameData.setTowerToPlace(new Fasttower(this.gameData, this.gamePanel.mousePosition));
+		} else if (e.getSource() == this.startButton) {
+			this.gameData.setGameActive(!this.gameData.isGameActive());
+		}
+		// Check if we have the money to place the selected tower
+		if ((this.gameData.getTowerToPlace() != null) && (this.gameData.getTowerToPlace().getPrice() > this.gameData.getMoney())) {
+			this.gameData.setMoneyWarning(true);
+			this.gameData.setTowerToPlace(null);
 		} else {
-			if (this.gameWindow.mouseIsPressed) {
-				this.gameData.setMoneyWarning(false);
-				// @TODO We tell the Window that we processed the click. Remove this hack by using proper MouseListeners!
-				this.gameWindow.mouseIsPressed = false;
-				int mouseX = this.gameWindow.mousePosition.x;
-				int mouseY = this.gameWindow.mousePosition.y;
-				if (mouseX > 710 && mouseX < 790 && mouseY > 50 && mouseY < 80) {
-					this.placingTower = true;
-					this.towerToPlace = new Firetower(this.gameData, this.gameWindow.mousePosition);
-				}
-				if (mouseX > 710 && mouseX < 790 && mouseY > 110 && mouseY < 140) {
-					this.placingTower = true;
-					this.towerToPlace = new Fasttower(this.gameData, this.gameWindow.mousePosition);
-				}
-
-				// Check if we have the money to place the selected tower
-				if ((this.towerToPlace != null) && (this.towerToPlace.getPrice() > this.gameData.getMoney())) {
-					this.placingTower = false;
-					this.gameData.setMoneyWarning(true);
-					this.towerToPlace = null;
-				}
-			}
+			this.gameData.setMoneyWarning(false);
 		}
 	}
 
-	public boolean isPlacingTower() {
-		return this.placingTower;
+	private void tryToPlaceTower() {
+		if (this.gameData.getTowerToPlace() != null) {
+			if (this.checkDistance(this.gameData.getTowerToPlace())) {
+				this.gameData.getTowerToPlace().setActive(true);
+				this.gameData.addTower(this.gameData.getTowerToPlace());
+				this.gameData.adjustMoney(-this.gameData.getTowerToPlace().getPrice());
+			}
+		}
+		this.gameData.setTowerToPlace(null);
 	}
 
-	public Object getUserAction() {
-		if(this.isPlacingTower()) {
-			return "placing tower";
-		};
-		return "-";
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (e.getSource() == this.gamePanel) {
+			this.tryToPlaceTower();
+		}
 	}
+
 }

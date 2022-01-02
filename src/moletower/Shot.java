@@ -1,7 +1,5 @@
 package moletower;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Point;
 
 public class Shot {
@@ -16,8 +14,6 @@ public class Shot {
 	private int deadDuration = 1000;
 	private boolean canBeDeleted = false;
 	private boolean isLiving = true;
-	private int length = 20;
-	private int thickness = 3;
 
 	public Shot(Point position, double angle, double range) {
 		this.x = position.x;
