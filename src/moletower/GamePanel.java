@@ -1,6 +1,5 @@
 package moletower;
 
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,9 +11,8 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-public class GamePainter extends JPanel {
+public class GamePanel extends JPanel {
 	
-	private Moletower game;
 	private Path path;
 	private GameData gameData;
 	private Vector<Enemy> enemies; // The enemy data used for painting
@@ -22,16 +20,17 @@ public class GamePainter extends JPanel {
 	private Vector<Tower> towers;
 	private Tower towerToPlace;
 	private GraphicsHelper graphicsHelper;
+	public Point mousePosition = new Point(1,1);
+	public boolean mouseIsPressed = false;
 	
-	public GamePainter(GraphicsHelper graphicsHelper, GameData gameData, Path path) {
-		this.setPreferredSize(new Dimension(800,600));
+	public GamePanel(GraphicsHelper graphicsHelper, GameData gameData, Path path) {
+		this.setPreferredSize(new Dimension(700,600));
 		this.graphicsHelper = graphicsHelper;
 		this.path = path;
 		this.gameData = gameData;
 		this.enemies = new Vector<Enemy>();
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
-
 	}
 
 	/**
@@ -42,15 +41,10 @@ public class GamePainter extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		this.drawBackground(g);
-
 		this.drawTowers(g);
-		if (this.gameData.isGameActive()) {
-			this.drawEnemies(g);
-			this.drawShots(g);
-		}
+		this.drawEnemies(g);
+		this.drawShots(g);
 		this.drawStatus(g);
-		// Draw sidebar last, so it is the top layer
-		this.drawSidebar(g);
 		// The tower to place hovers over all
 		this.drawTowerToPlace(g);
 	}
@@ -66,39 +60,12 @@ public class GamePainter extends JPanel {
 		}
 	}
 
-	/**
-	 * The tower menu etc.
-	 * 
-	 * @param g
-	 */
-	private void drawSidebar(Graphics g) {
-		g.setColor(Color.BLACK);
-		g.fillRect(700, 0, 100, 600);
-		g.setColor(Color.GREEN);
-		g.fillRect(710, 50, 80, 30);
-		g.fillRect(710, 110, 80, 30);
-		if (this.gameData.isMoneyWarningActive()) {
-			g.setColor(Color.RED);
-		} else {
-			g.setColor(Color.BLACK);
-		}
-		g.drawString("Firetower " + Firetower.basePrice + "$", 711, 70);
-		g.drawString("Fasttower " + Fasttower.basePrice + "$", 711, 130);
-		if (!this.gameData.isGameActive()) {
-			g.setColor(Color.GREEN);
-			g.fillRect(710, 500, 80, 30);
-			g.setColor(Color.BLACK);
-			g.drawString("START", 715, 515);
-		}
-	}
-
 	private void drawShots(Graphics g) {
 		Iterator<Shot> shotIterator = this.shots.iterator();
 		while (shotIterator.hasNext()) {
 			Shot currentShot = shotIterator.next();
 				if (currentShot.isLiving()) {
 					g.setColor(Color.CYAN);
-					
 					this.graphicsHelper.drawThickLineFromAngle(g, currentShot.getPosition(), currentShot.getAngle(), 2 , 20);
 				} else {
 					g.setColor(Color.BLACK);
@@ -124,7 +91,6 @@ public class GamePainter extends JPanel {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
-			
 				if (currentEnemy.hasReachedExit) {
 					return;
 				}
@@ -165,7 +131,7 @@ public class GamePainter extends JPanel {
 
 	private void drawBackground(Graphics g) {
 		g.setColor(Color.GRAY);
-		g.fillRect(0, 0, 800, 600);
+		g.fillRect(0, 0, 700, 600);
 		Iterator<Point> pathIterator = path.getPathPoints().iterator();
 		Point lastPoint = null;
 		Point nextPoint = null;

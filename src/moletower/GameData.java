@@ -15,6 +15,7 @@ public class GameData {
 	private long tick;
 	private boolean gameActive = false;
 	private boolean moneyWarning;
+	private Tower towerToPlace;
 	
 	public GameData() {
 		this.enemies = new Vector<Enemy>();
@@ -86,6 +87,13 @@ public class GameData {
 	
 	public boolean isMoneyWarningActive() {
 		return this.moneyWarning;
+	}
+
+	public void setTowerToPlace(Tower tower) {
+		this.towerToPlace = tower;
+	}
+	public Tower getTowerToPlace() {
+		return this.towerToPlace;
 	}
 }
 
