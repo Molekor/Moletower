@@ -1,6 +1,8 @@
 package moletower;
 
+import java.awt.Button;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -8,8 +10,9 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
+import javax.swing.JPanel;
 
-public class GamePainter {
+public class GamePainter extends JPanel {
 	
 	private Moletower game;
 	private Path path;
@@ -20,26 +23,28 @@ public class GamePainter {
 	private Tower towerToPlace;
 	private GraphicsHelper graphicsHelper;
 	
-	public GamePainter(Moletower game, GraphicsHelper graphicsHelper, GameData gameData, Path path) {
-		this.game = game;
+	public GamePainter(GraphicsHelper graphicsHelper, GameData gameData, Path path) {
+		this.setPreferredSize(new Dimension(800,600));
 		this.graphicsHelper = graphicsHelper;
 		this.path = path;
 		this.gameData = gameData;
 		this.enemies = new Vector<Enemy>();
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
+
 	}
 
 	/**
-	 * Draw the game. This is called by the GameWindow when it is repainted.
+	 * Draw the game.
 	 * 
 	 * @param g The graphics object of the GameWindow
 	 */
-	public void draw(Graphics g) {
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		this.drawBackground(g);
 
 		this.drawTowers(g);
-		if (this.game.isRoundActive()) {
+		if (this.gameData.isGameActive()) {
 			this.drawEnemies(g);
 			this.drawShots(g);
 		}
@@ -50,15 +55,13 @@ public class GamePainter {
 		this.drawTowerToPlace(g);
 	}
 
-
-
 	/**
 	 * Paint the tower the user is trying to place
 	 * 
 	 * @param g
 	 */
 	private void drawTowerToPlace(Graphics g) {
-		if (this.game.isPlacingTower() && (this.towerToPlace != null)) {
+		if (this.towerToPlace != null) {
 			this.drawTower(g, towerToPlace);
 		}
 	}
@@ -74,14 +77,14 @@ public class GamePainter {
 		g.setColor(Color.GREEN);
 		g.fillRect(710, 50, 80, 30);
 		g.fillRect(710, 110, 80, 30);
-		if (this.game.isMoneyWarningActive()) {
+		if (this.gameData.isMoneyWarningActive()) {
 			g.setColor(Color.RED);
 		} else {
 			g.setColor(Color.BLACK);
 		}
 		g.drawString("Firetower " + Firetower.basePrice + "$", 711, 70);
 		g.drawString("Fasttower " + Fasttower.basePrice + "$", 711, 130);
-		if (!this.game.isRoundActive()) {
+		if (!this.gameData.isGameActive()) {
 			g.setColor(Color.GREEN);
 			g.fillRect(710, 500, 80, 30);
 			g.setColor(Color.BLACK);
@@ -108,12 +111,12 @@ public class GamePainter {
 	private void drawStatus(Graphics g) {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, 800, 20);
-		if (this.game.isMoneyWarningActive()) {
+		if (this.gameData.isMoneyWarningActive()) {
 			g.setColor(Color.RED);
 		} else {
 			g.setColor(Color.WHITE);
 		}
-		g.drawString(String.format("Lives: %d Money: %d Action: %s " + (this.game.isMoneyWarningActive()?"NO MONEY":"OK"), this.gameData.getLives(), this.gameData.getMoney(), this.game.getUserAction()), 10, 13);
+		g.drawString(String.format("Lives: %d Money: %d " + (this.gameData.isMoneyWarningActive()?"NO MONEY":"OK"), this.gameData.getLives(), this.gameData.getMoney()), 10, 13);
 
 	}
 

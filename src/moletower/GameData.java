@@ -13,6 +13,8 @@ public class GameData {
 	private int lives;
 	private int money;
 	private long tick;
+	private boolean gameActive = false;
+	private boolean moneyWarning;
 	
 	public GameData() {
 		this.enemies = new Vector<Enemy>();
@@ -69,6 +71,21 @@ public class GameData {
 	
 	public long getTick() {
 		return this.tick;
+	}
+
+	public void setGameActive(boolean gameActive) {
+		this.gameActive = gameActive;
+	}
+	public boolean isGameActive() {
+		return this.gameActive;
+	}
+
+	public void setMoneyWarning(boolean warningActive) {
+		this.moneyWarning = warningActive;
+	}
+	
+	public boolean isMoneyWarningActive() {
+		return this.moneyWarning;
 	}
 }
 

@@ -19,11 +19,8 @@ public class Moletower implements Runnable {
 
 
 	private Path path; // The path all enemies will follow to the exit
-	private boolean roundActive = false;
 	private boolean placingTower = false; // Is the user actively placing a tower?
 	private Tower towerToPlace; // The tower instance that the user is trying to place
-
-	private boolean moneyWarning = false; // Indicator that the player tries something too expensive, so we can issue a warning on screen
 	
 	private GamePainter gamePainter;
 	private MainMover mover;
@@ -49,7 +46,7 @@ public class Moletower implements Runnable {
 		this.gameData = new GameData();
 		this.mathHelper = new MathHelper();
 		this.graphicsHelper = new GraphicsHelper();
-		this.gamePainter = new GamePainter(this, this.graphicsHelper, this.gameData, this.path);
+		this.gamePainter = new GamePainter(this.graphicsHelper, this.gameData, this.path);
 		this.gameWindow = new GameWindow(this.gamePainter);
 		this.mover = new MainMover(this.gameData, this.mathHelper, this.path);
 		Thread gameThread = new Thread(this);
@@ -70,7 +67,7 @@ public class Moletower implements Runnable {
 				// @TODO Replace with proper mouse listeners etc.
 				this.checkUserAction();
 				// Game element actions, if the game is active
-				if (this.roundActive) {
+				if (this.gameData.isGameActive()) {
 					timeSinceLastMove = System.currentTimeMillis() - lastMoveTime;
 					// Only move if at least the moveInterval time has passed, else pause
 					if (timeSinceLastMove > moveInterval) {
@@ -101,11 +98,11 @@ public class Moletower implements Runnable {
 	private void checkUserAction() {
 		
 		// Check for start of round button
-		if (this.roundActive == false && this.gameWindow.mouseIsPressed) {
+		if (this.gameData.isGameActive() == false && this.gameWindow.mouseIsPressed) {
 			int mouseX = this.gameWindow.mousePosition.x;
 			int mouseY = this.gameWindow.mousePosition.y;
 			if (mouseX > 710 && mouseX < 790 && mouseY > 500 && mouseY < 530) {
-				this.roundActive = true;
+				this.gameData.setGameActive(true);
 			} else {
 				try {
 					Thread.sleep(10);
@@ -155,7 +152,7 @@ public class Moletower implements Runnable {
 			}
 		} else {
 			if (this.gameWindow.mouseIsPressed) {
-				this.moneyWarning = false;
+				this.gameData.setMoneyWarning(false);
 				// @TODO We tell the Window that we processed the click. Remove this hack by using proper MouseListeners!
 				this.gameWindow.mouseIsPressed = false;
 				int mouseX = this.gameWindow.mousePosition.x;
@@ -172,19 +169,11 @@ public class Moletower implements Runnable {
 				// Check if we have the money to place the selected tower
 				if ((this.towerToPlace != null) && (this.towerToPlace.getPrice() > this.gameData.getMoney())) {
 					this.placingTower = false;
-					this.moneyWarning = true;
+					this.gameData.setMoneyWarning(true);
 					this.towerToPlace = null;
 				}
 			}
 		}
-	}
-
-	public boolean isRoundActive() {
-		return this.roundActive;
-	}
-
-	public boolean isMoneyWarningActive() {
-		return this.moneyWarning;
 	}
 
 	public boolean isPlacingTower() {
