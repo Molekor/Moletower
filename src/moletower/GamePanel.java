@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Vector;
@@ -98,9 +97,7 @@ public class GamePanel extends JPanel {
 				}
 				if (currentEnemy.isLiving) {
 					URL iconUrl = this.getClass().getResource(currentEnemy.getImagePath());
-					  Toolkit tk = this.getToolkit();
-					//  Image image = tk.getImage(iconUrl);
-					ImageIcon ii = new ImageIcon(iconUrl); //currentEnemy.getImagePath());
+					ImageIcon ii = new ImageIcon(iconUrl);
 					Image image = ii.getImage();
 					g.drawImage(image, (int) currentEnemy.x - image.getWidth(null) / 2, (int) currentEnemy.y - image.getHeight(null) / 2, null);
 				} else {

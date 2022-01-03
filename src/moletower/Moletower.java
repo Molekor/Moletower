@@ -7,6 +7,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -37,15 +41,22 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	}
 
 	public Moletower() {
-		this.path = new Path();
+		try {
+			this.path = this.getPath("/path1.csv");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		this.path.addPathPoint(new Point(10, 50));
-		this.path.addPathPoint(new Point(100, 60));
-		this.path.addPathPoint(new Point(210, 150));
-		this.path.addPathPoint(new Point(200, 250));
-		this.path.addPathPoint(new Point(650, 550));
-		this.path.addPathPoint(new Point(600, 50));
-		this.path.addPathPoint(new Point(60, 500));
+		
+		
+//		this.path.addPathPoint(new Point(10, 50));
+//		this.path.addPathPoint(new Point(100, 60));
+//		this.path.addPathPoint(new Point(210, 150));
+//		this.path.addPathPoint(new Point(200, 250));
+//		this.path.addPathPoint(new Point(650, 550));
+//		this.path.addPathPoint(new Point(600, 50));
+//		this.path.addPathPoint(new Point(60, 500));
 		
 		this.gameData = new GameData();
 		this.graphicsHelper = new GraphicsHelper();
@@ -69,6 +80,21 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 		gameThread.start();
 	}
 
+
+	private Path getPath(String pathFileName) throws IOException {
+		Path path = new Path();
+		InputStream inputStream = this.getClass().getResourceAsStream(pathFileName);
+		BufferedReader reader = new BufferedReader(
+				new InputStreamReader(inputStream));
+		for (String line; (line = reader.readLine()) != null; ) {
+			String[] coords = line.split(";");
+			if (coords.length == 2) {
+				path.addPathPoint(new Point(Integer.parseInt(coords[0]), Integer.parseInt(coords[1])));
+			}
+		}
+		reader.close();
+		return path;
+	}
 
 	@SuppressWarnings("unchecked")
 	public void run() {
@@ -127,7 +153,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 		Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
 		while (towerIterator.hasNext()) {
 			Tower otherTower = towerIterator.next();
-			double distance = MathHelper.getDistance(this.gameData.getTowerToPlace().getPosition(), otherTower.getPosition()) - otherTower.getSize();
+			double distance = MathHelper.getDistance(towerToPlace.getPosition(), otherTower.getPosition()) - otherTower.getSize();
 			if (distance < minDistance) {
 				minDistance = distance;
 			}
