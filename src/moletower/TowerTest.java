@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.util.Vector;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,8 +24,13 @@ class TowerTest {
 		}		
 	}
 	
+	class TestEnemy extends Enemy {
+		#
+	}
+	
 	Point towerPosition; 
 	TestTower testTower;
+	Vector<Enemy> enemies;
 	private GameData gameData;
 	
 	@BeforeEach
@@ -32,6 +38,11 @@ class TowerTest {
 		this.gameData = new GameData();
 		this.towerPosition = new Point(1,1);
 		this.testTower = new TestTower(this.gameData);
+		this.enemies = new Vector<Enemy>();
+		Path path = new Path();
+		path.addPathPoint(new Point(1,1));
+		Enemy enemy = new TestEnemy();
+		this.enemies.add(enemy);
 	}
 	
 	@Test
@@ -44,13 +55,13 @@ class TowerTest {
 	
 	@Test
 	void dontShootAtNull() {
-		assertNull(testTower.shoot(null),"Tower fired at a null value!");
+		assertNull(testTower.shoot(null, 1),"Tower fired at a null value!");
 	}
 	
 	@Test
 	void dontShootAtOutOfRange() {
 		int distance = TestTower.baseRange + 1;
-		assertNull(this.testTower.shoot(new Point(2,200)),"Tower fired a shot at an out of range target! Dist: " + distance + " Range: " + TestTower.baseRange);
+		assertNull(this.testTower.shoot(this.enemies, 1),"Tower fired a shot at an out of range target! Dist: " + distance + " Range: " + TestTower.baseRange);
 	}
 	
 	@Test

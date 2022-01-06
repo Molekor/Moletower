@@ -6,7 +6,6 @@ import java.util.Iterator;
 public class MainMover {
 
 	private GameData gameData;
-	private int moveCounter = 0;
 	private Path path;
 
 	public MainMover(GameData gameData, Path path) {
@@ -19,7 +18,6 @@ public class MainMover {
 		this.resolveEnemyMoveResults();
 		this.moveShots();
 		this.shootTowers();
-		this.moveCounter++;
 	}
 	
 	/**
@@ -31,38 +29,23 @@ public class MainMover {
 		Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
 		while (towerIterator.hasNext()) {
 			Tower shootingTower = towerIterator.next();
-			Enemy target = this.findClosestEnemy(shootingTower.getPosition());
-			if (target != null && target.isLiving()) {
-				Shot shot = shootingTower.shoot(target.getPosition());
-				if (shot != null) {
-					this.gameData.addShot(shot);
-				}
+			Shot shot = shootingTower.shoot(this.gameData.getEnemies(), this.gameData.getTick());
+			if (shot != null) {
+				this.gameData.addShot(shot);
 			}
+			
+			
+//			Enemy target = this.findClosestEnemy(shootingTower.getPosition());
+//			if (target != null && target.isLiving()) {
+//				Shot shot = shootingTower.shoot(target.getPosition());
+//				if (shot != null) {
+//					this.gameData.addShot(shot);
+//				}
+//			}
 		}
 	}
 
-	/**
-	 * 
-	 * @param startPoint The coordinates from where we look
-	 * @return the enemy closest to the given coordinates, null if no enemy is found
-	 */
-	private Enemy findClosestEnemy(Point startPoint) {
-		Enemy closestEnemy = null;
-		double smallestDistance = Double.MAX_VALUE;
-		Iterator<Enemy> enemyIterator = this.gameData.getEnemies().iterator();
-		while (enemyIterator.hasNext()) {
-			Enemy currentEnemy = enemyIterator.next();
-			if (!currentEnemy.isLiving()) {
-				continue;
-			}
-			double currentDistance = MathHelper.getDistance(startPoint, currentEnemy.getPosition());
-			if (currentDistance < smallestDistance) {
-				smallestDistance = currentDistance;
-				closestEnemy = currentEnemy;
-			}
-		}
-		return closestEnemy;
-	}
+
 
 	/**
 	 * Check if any enemies have reached the exit. They cost the player lives
@@ -83,25 +66,25 @@ public class MainMover {
 		}
 		// @TODO develop an algorithm and data structure for spawning enemies that also
 		// holds the path(s)
-		if (this.moveCounter % 40 == 0) {
+		if (this.gameData.getTick() % 40 == 0) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 500) && ((this.moveCounter + 7) % 50 == 0)) {
+		if ((this.gameData.getTick() > 500) && ((this.gameData.getTick() + 7) % 50 == 0)) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 700) && ((this.moveCounter + 33) % 78 == 0)) {
+		if ((this.gameData.getTick() > 700) && ((this.gameData.getTick() + 33) % 78 == 0)) {
 			this.gameData.addEnemy(new Fastenemy(path));
 		}
-		if ((this.moveCounter > 1000) && ((this.moveCounter + 33) % 33 == 0)) {
+		if ((this.gameData.getTick() > 1000) && ((this.gameData.getTick() + 33) % 33 == 0)) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 1500) && ((this.moveCounter + 88) % 22 == 0)) {
+		if ((this.gameData.getTick() > 1500) && ((this.gameData.getTick() + 88) % 22 == 0)) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 2000) && ((this.moveCounter + 88) % 18 == 0)) {
+		if ((this.gameData.getTick() > 2000) && ((this.gameData.getTick() + 88) % 18 == 0)) {
 			this.gameData.addEnemy(new Slowenemy(path));
 		}
-		if ((this.moveCounter > 3000) && ((this.moveCounter + 33) % 14 == 0)) {
+		if ((this.gameData.getTick() > 3000) && ((this.gameData.getTick() + 33) % 14 == 0)) {
 			this.gameData.addEnemy(new Fastenemy(path));
 		}
 	}

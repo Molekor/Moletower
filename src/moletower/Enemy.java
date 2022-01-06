@@ -11,7 +11,7 @@ import java.util.List;
  */
 public abstract class Enemy {
 
-	protected List<Point> pathPoints;
+	protected Path path;
 	protected int nextPathPoint = 1;
 	protected double speed;
 	protected double x;
@@ -33,8 +33,8 @@ public abstract class Enemy {
 	 * @param path
 	 * @throws Exception
 	 */
-	public Enemy(Path path, String imagePath, double speed, int value, int lives, int deadDuration, int baseSize) throws Exception {
-		this.pathPoints = path.getPathPoints();
+	public Enemy(Path path, String imagePath, double speed, int value, int lives, int deadDuration, int baseSize) {
+		this.path = path;
 		this.speed = speed;
 		this.value = value;
 		this.lives = lives;
@@ -42,11 +42,7 @@ public abstract class Enemy {
 		this.speed = speed;
 		this.imagePath = imagePath;
 		this.size = baseSize;
-		
-		if (pathPoints.size() < 2) {
-			throw new Exception("Too few pathpoints, need at least 2!");
-		}
-		Point start = pathPoints.get(0);
+		Point start = this.path.getPathPoints().get(0);
 		this.x = start.x;
 		this.y = start.y;
 	}
@@ -69,7 +65,7 @@ public abstract class Enemy {
 		}
 		
 		// Find the coordinates of the next path point
-		Point destination = this.pathPoints.get(nextPathPoint);
+		Point destination = this.path.getPathPoints().get(nextPathPoint);
 		double dx = destination.x - this.x;
 		double dy = destination.y - this.y;
 		
@@ -85,7 +81,7 @@ public abstract class Enemy {
 		double distanceTraveled = Math.sqrt(xMove * xMove + yMove * yMove);
 		double distanceToNextWaypoint = Math.sqrt(dx * dx + dy * dy);
 		if (distanceToNextWaypoint <= distanceTraveled) {
-			if (nextPathPoint == this.pathPoints.size() - 1) {
+			if (nextPathPoint == this.path.getPathPoints().size() - 1) {
 				this.hasReachedExit = true;
 			} else {
 				this.x = destination.x;

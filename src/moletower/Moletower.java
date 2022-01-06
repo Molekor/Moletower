@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -47,16 +46,6 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-//		this.path.addPathPoint(new Point(10, 50));
-//		this.path.addPathPoint(new Point(100, 60));
-//		this.path.addPathPoint(new Point(210, 150));
-//		this.path.addPathPoint(new Point(200, 250));
-//		this.path.addPathPoint(new Point(650, 550));
-//		this.path.addPathPoint(new Point(600, 50));
-//		this.path.addPathPoint(new Point(60, 500));
 		
 		this.gameData = new GameData();
 		this.graphicsHelper = new GraphicsHelper();
@@ -119,7 +108,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 				if (this.gameData.getTowerToPlace() != null) {
 					int mouseX = MouseInfo.getPointerInfo().getLocation().x - this.gamePanel.getLocationOnScreen().x;
 					int mouseY = MouseInfo.getPointerInfo().getLocation().y - this.gamePanel.getLocationOnScreen().y;
-					this.gameData.getTowerToPlace().setCanBePlaced(this.checkDistance(this.gameData.getTowerToPlace()));
+					this.gameData.getTowerToPlace().setCanBePlaced(this.gameData.getTowerToPlace().checkDistance(this.path, this.gameData.getEnemies()));
 					this.gameData.getTowerToPlace().setPosition(new Point(mouseX, mouseY));
 					this.gamePanel.setTowerToPlace(this.gameData.getTowerToPlace());
 				} else {
@@ -135,30 +124,6 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 				System.exit(1);
 			}
 		}
-	}
-
-	private boolean checkDistance(Tower towerToPlace) {
-		double minDistance = Double.MAX_VALUE;
-		Iterator<Point> pathPointIterator = this.path.getPathPoints().iterator();
-		Point thisPathPoint = pathPointIterator.next();
-		Point nextPathPoint;
-		while (pathPointIterator.hasNext()) {
-			nextPathPoint = pathPointIterator.next();
-			double distance = MathHelper.getDistancePointToSegment(this.gameData.getTowerToPlace().getPosition(), thisPathPoint, nextPathPoint) - (this.path.getThickness() / 2);
-			if (distance < minDistance) {
-				minDistance = distance;
-			}
-			thisPathPoint = nextPathPoint;
-		}
-		Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
-		while (towerIterator.hasNext()) {
-			Tower otherTower = towerIterator.next();
-			double distance = MathHelper.getDistance(towerToPlace.getPosition(), otherTower.getPosition()) - otherTower.getSize();
-			if (distance < minDistance) {
-				minDistance = distance;
-			}
-		}
-		return minDistance > (this.gameData.getTowerToPlace().getSize());
 	}
 
 	@Override
@@ -182,7 +147,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 
 	private void tryToPlaceTower() {
 		if (this.gameData.getTowerToPlace() != null) {
-			if (this.checkDistance(this.gameData.getTowerToPlace())) {
+			if (this.gameData.getTowerToPlace().checkDistance(this.path, this.gameData.getEnemies())) {
 				this.gameData.getTowerToPlace().setActive(true);
 				this.gameData.addTower(this.gameData.getTowerToPlace());
 				this.gameData.adjustMoney(-this.gameData.getTowerToPlace().getPrice());
