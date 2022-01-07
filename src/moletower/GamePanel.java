@@ -5,11 +5,9 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel {
@@ -95,13 +93,9 @@ public class GamePanel extends JPanel {
 				if (currentEnemy.hasReachedExit) {
 					return;
 				}
-				if (currentEnemy.isLiving) {
-					URL iconUrl = this.getClass().getResource(currentEnemy.getImagePath());
-					ImageIcon ii = new ImageIcon(iconUrl);
-					Image image = ii.getImage();
+				if (currentEnemy.isLiving) {		
+					Image image = currentEnemy.getImage();
 					g.drawImage(image, (int) currentEnemy.x - image.getWidth(null) / 2, (int) currentEnemy.y - image.getHeight(null) / 2, null);
-				
-				
 				} else {
 					g.setColor(Color.GREEN);
 					g.fillRect((int) currentEnemy.x - 2, (int) currentEnemy.y - 2, 4, 4);

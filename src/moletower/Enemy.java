@@ -1,6 +1,8 @@
 package moletower;
 
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 
 /**
  * Evil things that follow a path along the map to reach the exit.
@@ -24,16 +26,16 @@ public abstract class Enemy {
 	protected int lives; // how many lives has the enemy left
 	protected int baseLives; // starting lives of the enemy class
 	protected String imagePath;
-	protected String imagePathDamaged;
 	protected int size;
-
+	protected BufferedImage image;
+	
 	/**
 	 * Constructor. Sets the path points this enemy will follow, and sets the first
 	 * path point as its first target.
 	 * @param path
 	 * @throws Exception
 	 */
-	public Enemy(String imagePath, String imagePathDamaged, double speed, int value, int lives, int deadDuration, int baseSize) {
+	public Enemy(String imagePath, double speed, int value, int lives, int deadDuration, int baseSize) {
 		this.speed = speed;
 		this.value = value;
 		this.lives = lives;
@@ -41,7 +43,7 @@ public abstract class Enemy {
 		this.deadDuration = deadDuration;
 		this.speed = speed;
 		this.imagePath = imagePath;
-		this.imagePathDamaged = imagePathDamaged;
+		this.image = GraphicsHelper.getImage(imagePath);
 		this.size = baseSize;
 	}
 
@@ -123,6 +125,7 @@ public abstract class Enemy {
 			this.diedAt = System.currentTimeMillis();
 			this.isLiving = false;
 		}
+		this.image = GraphicsHelper.getDarkenedImage(this.imagePath, (float) this.lives / (float) this.baseLives);
 	}
 
 	/**
@@ -146,11 +149,7 @@ public abstract class Enemy {
 	}
 
 	protected  String getImagePath() {
-		if (this.lives <= (this.baseLives /2)) {
-			return this.imagePathDamaged;
-		} else {
-			return this.imagePath;
-		}
+		return this.imagePath;
 	}
 	
 	protected int getLives() {
@@ -166,5 +165,13 @@ public abstract class Enemy {
 		Point start = this.path.getPathPoints().get(0);
 		this.x = start.x;
 		this.y = start.y;
+	}
+
+	public float getHealthStatus() {
+		return (float) this.lives / (float) this.baseLives;
+	}
+
+	public Image getImage() {
+		return this.image;
 	}
 }

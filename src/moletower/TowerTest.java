@@ -31,11 +31,10 @@ class TowerTest {
 		public static double baseSpeed = 10;
 		public static int deadDuration = 10;
 		public static String imagePath = "foo/bar.png";
-		public static String imagePathDamaged = "foo/bar.png";
 		public static int baseSize = 5;
 		
 		TestEnemy() {
-			super(imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
+			super(imagePath, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
 		}
 	}
 	

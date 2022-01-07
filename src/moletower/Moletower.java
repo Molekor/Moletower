@@ -132,12 +132,13 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 				} else {
 					Thread.sleep(moveInterval - timeSinceLastMove);
 				}
-				if (this.gameData.getTowerToPlace() != null) {
+				Tower placingTower = this.gameData.getTowerToPlace();
+				if (placingTower != null) {
 					int mouseX = MouseInfo.getPointerInfo().getLocation().x - this.gamePanel.getLocationOnScreen().x;
 					int mouseY = MouseInfo.getPointerInfo().getLocation().y - this.gamePanel.getLocationOnScreen().y;
-					this.gameData.getTowerToPlace().setCanBePlaced(this.gameData.getTowerToPlace().checkDistance(this.path, this.gameData.getEnemies()));
-					this.gameData.getTowerToPlace().setPosition(new Point(mouseX, mouseY));
-					this.gamePanel.setTowerToPlace(this.gameData.getTowerToPlace());
+					placingTower.setCanBePlaced(placingTower.checkDistance(this.path, this.gameData.getEnemies()));
+					placingTower.setPosition(new Point(mouseX, mouseY));
+					this.gamePanel.setTowerToPlace(placingTower);
 				} else {
 					this.gamePanel.setTowerToPlace(null);
 				}
