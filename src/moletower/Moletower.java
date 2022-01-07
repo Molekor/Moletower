@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 /**
  * The master class of the game.
  * 
@@ -34,16 +36,25 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	private Button firetowerButton;
 	private Button fasttowerButton;
 	private Button startButton;
-
+	private long spawnPause = 0;
+	private long spawnSpace = 0;
+	private Vector<Vector<Enemy>> spawningEnemies;
+	private Vector<Enemy> spawningGroup;
+	private Vector<Long> spawnPauses;
+	
 	public static void main(String[] args) {
 		new Moletower();
 	}
 
 	public Moletower() {
+		this.spawningEnemies = new Vector<Vector<Enemy>>();
+		this.spawningGroup = new Vector<Enemy>();
+		this.spawnPauses = new Vector<Long>();
+		this.spawnPauses.add(Long.parseLong("0"));
 		try {
 			this.path = this.getPath("/path1.csv");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			this.loadEnemyFile("/rounds1.csv");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -64,7 +75,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 		this.buttonPanel.addButton(this.startButton);
 		
 		this.gameWindow = new GameWindow(this.gamePanel, this.buttonPanel);
-		this.mover = new MainMover(this.gameData, this.path);
+		this.mover = new MainMover(this.gameData);
 		Thread gameThread = new Thread(this);
 		gameThread.start();
 	}
@@ -73,8 +84,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	private Path getPath(String pathFileName) throws IOException {
 		Path path = new Path();
 		InputStream inputStream = this.getClass().getResourceAsStream(pathFileName);
-		BufferedReader reader = new BufferedReader(
-				new InputStreamReader(inputStream));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		for (String line; (line = reader.readLine()) != null; ) {
 			String[] coords = line.split(";");
 			if (coords.length == 2) {
@@ -100,6 +110,23 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 					if (this.gameData.isGameActive()) {
 						this.mover.move();
 						this.gameData.addTick();
+						if (this.spawnSpace > 0) {
+							this.spawnSpace--;
+						} else {
+							if (this.spawnPause > 0) {
+								this.spawnPause--;
+							} else {
+								this.addEnemies();
+							}
+						}
+						if (this.gameData.getLives() <= 0) {
+							JOptionPane.showMessageDialog(this.gameWindow, "GAME OVER!");
+							System.exit(0);
+						}
+						if((this.spawningEnemies.size() == 0) && (this.spawningGroup.size() == 0) && (this.gameData.getEnemies().size() == 0) ) {
+							JOptionPane.showMessageDialog(this.gameWindow, "YOU WIN!");
+							System.exit(0);
+						}
 					}
 					lastMoveTime = System.currentTimeMillis();
 				} else {
@@ -122,6 +149,41 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
+			}
+		}
+	}
+
+	private void loadEnemyFile(String roundFileName) throws IOException, Exception {
+		InputStream inputStream = this.getClass().getResourceAsStream(roundFileName);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		for (String line; (line = reader.readLine()) != null; ) {
+			if (line.startsWith("#")) {
+				continue;
+			}
+			String[] enemyGroup = line.split(",");
+			if (enemyGroup.length == 3) {
+				Vector<Enemy> enemyVector = new Vector<Enemy>();
+				this.spawningEnemies.add(enemyVector);
+				for (int i = 0; i < Integer.parseInt(enemyGroup[0]); i++) {
+					if (enemyGroup[1].equals("1")) {
+						enemyVector.add(new Slowenemy(this.path));
+					} else {
+						enemyVector.add(new Fastenemy(this.path));
+					}
+				}
+				this.spawnPauses.add(Long.parseLong(enemyGroup[2]));
+			}
+		}
+	}
+	
+	private void addEnemies() throws Exception {
+		if (this.spawningGroup.size() > 0) {
+			this.gameData.addEnemy(this.spawningGroup.remove(0));
+			this.spawnSpace = 10;
+		} else {
+			if (this.spawningEnemies.size() > 0) {
+				this.spawningGroup = this.spawningEnemies.remove(0);
+				this.spawnPause = this.spawnPauses.remove(0);
 			}
 		}
 	}

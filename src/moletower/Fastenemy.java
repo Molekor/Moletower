@@ -13,10 +13,11 @@ public class Fastenemy extends Enemy {
 	private static final double baseSpeed = 3.2;
 	private static final int deadDuration = 800;
 	private static final String imagePath = "/Fastenemy.png";
+	private static final String imagePathDamaged = "/Fastenemy_damaged.png";
 	private static final int baseSize = 20;
 	
 	Fastenemy(Path path) throws Exception {
-		super(path, imagePath, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
+		super(path, imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
 	}
 
 }

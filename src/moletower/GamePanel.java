@@ -100,6 +100,8 @@ public class GamePanel extends JPanel {
 					ImageIcon ii = new ImageIcon(iconUrl);
 					Image image = ii.getImage();
 					g.drawImage(image, (int) currentEnemy.x - image.getWidth(null) / 2, (int) currentEnemy.y - image.getHeight(null) / 2, null);
+				
+				
 				} else {
 					g.setColor(Color.GREEN);
 					g.fillRect((int) currentEnemy.x - 2, (int) currentEnemy.y - 2, 4, 4);

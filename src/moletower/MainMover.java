@@ -1,16 +1,13 @@
 package moletower;
 
-import java.awt.Point;
 import java.util.Iterator;
 
 public class MainMover {
 
 	private GameData gameData;
-	private Path path;
 
-	public MainMover(GameData gameData, Path path) {
+	public MainMover(GameData gameData) {
 		this.gameData = gameData;
-		this.path = path;
 	}
 
 	public void move() throws Exception {
@@ -58,35 +55,32 @@ public class MainMover {
 			Enemy currentEnemy = enemyIterator.next();
 			if (currentEnemy.hasReachedExit()) {
 				this.gameData.adjustLives(-1);
-				if (this.gameData.getLives() <= 0) {
-					System.exit(0);
-				}
 				enemyIterator.remove();
 			}
 		}
-		// @TODO develop an algorithm and data structure for spawning enemies that also
-		// holds the path(s)
-		if (this.gameData.getTick() % 40 == 0) {
-			this.gameData.addEnemy(new Slowenemy(path));
-		}
-		if ((this.gameData.getTick() > 500) && ((this.gameData.getTick() + 7) % 50 == 0)) {
-			this.gameData.addEnemy(new Slowenemy(path));
-		}
-		if ((this.gameData.getTick() > 700) && ((this.gameData.getTick() + 33) % 78 == 0)) {
-			this.gameData.addEnemy(new Fastenemy(path));
-		}
-		if ((this.gameData.getTick() > 1000) && ((this.gameData.getTick() + 33) % 33 == 0)) {
-			this.gameData.addEnemy(new Slowenemy(path));
-		}
-		if ((this.gameData.getTick() > 1500) && ((this.gameData.getTick() + 88) % 22 == 0)) {
-			this.gameData.addEnemy(new Slowenemy(path));
-		}
-		if ((this.gameData.getTick() > 2000) && ((this.gameData.getTick() + 88) % 18 == 0)) {
-			this.gameData.addEnemy(new Slowenemy(path));
-		}
-		if ((this.gameData.getTick() > 3000) && ((this.gameData.getTick() + 33) % 14 == 0)) {
-			this.gameData.addEnemy(new Fastenemy(path));
-		}
+//		// @TODO develop an algorithm and data structure for spawning enemies that also
+//		// holds the path(s)
+//		if (this.gameData.getTick() % 40 == 0) {
+//			this.gameData.addEnemy(new Slowenemy(path));
+//		}
+//		if ((this.gameData.getTick() > 500) && ((this.gameData.getTick() + 7) % 50 == 0)) {
+//			this.gameData.addEnemy(new Slowenemy(path));
+//		}
+//		if ((this.gameData.getTick() > 700) && ((this.gameData.getTick() + 33) % 78 == 0)) {
+//			this.gameData.addEnemy(new Fastenemy(path));
+//		}
+//		if ((this.gameData.getTick() > 1000) && ((this.gameData.getTick() + 33) % 33 == 0)) {
+//			this.gameData.addEnemy(new Slowenemy(path));
+//		}
+//		if ((this.gameData.getTick() > 1500) && ((this.gameData.getTick() + 88) % 22 == 0)) {
+//			this.gameData.addEnemy(new Slowenemy(path));
+//		}
+//		if ((this.gameData.getTick() > 2000) && ((this.gameData.getTick() + 88) % 18 == 0)) {
+//			this.gameData.addEnemy(new Slowenemy(path));
+//		}
+//		if ((this.gameData.getTick() > 3000) && ((this.gameData.getTick() + 33) % 14 == 0)) {
+//			this.gameData.addEnemy(new Fastenemy(path));
+//		}
 	}
 
 	/**

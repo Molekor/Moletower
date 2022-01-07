@@ -1,7 +1,6 @@
 package moletower;
 
 import java.awt.Point;
-import java.util.List;
 
 /**
  * Evil things that follow a path along the map to reach the exit.
@@ -25,6 +24,7 @@ public abstract class Enemy {
 	protected int lives; // how many lives has the enemy left
 	protected int baseLives; // starting lives of the enemy class
 	protected String imagePath;
+	protected String imagePathDamaged;
 	protected int size;
 
 	/**
@@ -33,14 +33,16 @@ public abstract class Enemy {
 	 * @param path
 	 * @throws Exception
 	 */
-	public Enemy(Path path, String imagePath, double speed, int value, int lives, int deadDuration, int baseSize) {
+	public Enemy(Path path, String imagePath, String imagePathDamaged, double speed, int value, int lives, int deadDuration, int baseSize) {
 		this.path = path;
 		this.speed = speed;
 		this.value = value;
 		this.lives = lives;
+		this.baseLives = lives;
 		this.deadDuration = deadDuration;
 		this.speed = speed;
 		this.imagePath = imagePath;
+		this.imagePathDamaged = imagePathDamaged;
 		this.size = baseSize;
 		Point start = this.path.getPathPoints().get(0);
 		this.x = start.x;
@@ -143,7 +145,11 @@ public abstract class Enemy {
 	}
 
 	protected  String getImagePath() {
-		return this.imagePath;
+		if (this.lives <= (this.baseLives /2)) {
+			return this.imagePathDamaged;
+		} else {
+			return this.imagePath;
+		}
 	}
 	
 	protected int getLives() {
