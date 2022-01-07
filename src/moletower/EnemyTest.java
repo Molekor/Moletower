@@ -20,10 +20,11 @@ public class EnemyTest {
 		public static double baseSpeed = 10;
 		public static int deadDuration = 10;
 		public static String imagePath = "foo/bar.png";
+		public static String imagePathDamaged = "foo/bar.png";
 		public static int baseSize = 5;
 		
 		TestEnemy(Path path) throws Exception {
-			super(path, imagePath, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
+			super(path, imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
 		}
 	}
 	
