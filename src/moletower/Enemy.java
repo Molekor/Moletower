@@ -33,8 +33,7 @@ public abstract class Enemy {
 	 * @param path
 	 * @throws Exception
 	 */
-	public Enemy(Path path, String imagePath, String imagePathDamaged, double speed, int value, int lives, int deadDuration, int baseSize) {
-		this.path = path;
+	public Enemy(String imagePath, String imagePathDamaged, double speed, int value, int lives, int deadDuration, int baseSize) {
 		this.speed = speed;
 		this.value = value;
 		this.lives = lives;
@@ -44,20 +43,17 @@ public abstract class Enemy {
 		this.imagePath = imagePath;
 		this.imagePathDamaged = imagePathDamaged;
 		this.size = baseSize;
-		Point start = this.path.getPathPoints().get(0);
-		this.x = start.x;
-		this.y = start.y;
 	}
 
 	/**
 	 * Advance this enemy on its path.
 	 */
 	public void move() {
-		// Enemies that have reached the exit dont move anymore
+		// Enemies that have reached the exit don't move anymore
 		if (this.hasReachedExit) {
 			return;
 		}
-		// Dead enemies dont move.
+		// Dead enemies don't move.
 		if (!this.isLiving ) {
 			// Check how long the enemy has been shown as dead
 			if (System.currentTimeMillis() - this.diedAt > this.deadDuration) {
@@ -100,6 +96,11 @@ public abstract class Enemy {
 		return new Point((int) this.x, (int) this.y);
 	}
 
+	public void setPosition(Point position) {
+		this.x = position.x;
+		this.y = position.y;
+	}
+	
 	public boolean hasReachedExit() {
 		return this.hasReachedExit;
 	}
@@ -158,5 +159,12 @@ public abstract class Enemy {
 	
 	protected double getSpeed() {
 		return this.speed;
+	}
+
+	public void setPath(Path path) {
+		this.path = path;	
+		Point start = this.path.getPathPoints().get(0);
+		this.x = start.x;
+		this.y = start.y;
 	}
 }

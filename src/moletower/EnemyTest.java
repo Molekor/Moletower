@@ -1,10 +1,8 @@
 package moletower;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.awt.Point;
 
@@ -23,8 +21,8 @@ public class EnemyTest {
 		public static String imagePathDamaged = "foo/bar.png";
 		public static int baseSize = 5;
 		
-		TestEnemy(Path path) throws Exception {
-			super(path, imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
+		TestEnemy() {
+			super(imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
 		}
 	}
 	
@@ -36,31 +34,11 @@ public class EnemyTest {
 	
 	@BeforeEach
 	void setupTestEnemy() {
-		this.path = new Path();
-		path.addPathPoint(first);
-		path.addPathPoint(second);
-		path.addPathPoint(third);
-		try {
-			enemy = new TestEnemy(path);
-		} catch (Exception e) {
-			fail("Exception in Constructor!");
-		}
-	}
-	
-	@Test
-	public void testTooFewPathPoints() {
-		this.path = new Path();
-		this.path.addPathPoint(new Point(1,1));
-		// The code that throws the exception is wrapped in a lambda expression
-		assertThrows(
-				Exception.class,
-				() -> {this.enemy = new TestEnemy(this.path);}
-			);
+		enemy = new TestEnemy();
 	}
 	
 	@Test
 	public void testConstructor() {
-		assertEquals(this.enemy.getPosition(), first, "Enemy must start at first path point!");
 		assertEquals(this.enemy.getValue(), TestEnemy.baseValue);
 		assertEquals(this.enemy.getLives(), TestEnemy.baseLives);
 		assertEquals(this.enemy.getSpeed(), TestEnemy.baseSpeed);
@@ -80,6 +58,12 @@ public class EnemyTest {
 	
 	@Test
 	public void testMove() {
+		this.path = new Path();
+		path.addPathPoint(first);
+		path.addPathPoint(second);
+		path.addPathPoint(third);
+		enemy.setPath(path);
+		assertEquals(this.enemy.getPosition(), first, "Enemy must start at first path point!");
 		double startDistance = MathHelper.getDistance(this.enemy.getPosition(), second);
 		this.enemy.move();
 		double newDistance = MathHelper.getDistance(this.enemy.getPosition(), second);

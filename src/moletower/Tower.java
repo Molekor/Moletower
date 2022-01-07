@@ -52,7 +52,7 @@ public abstract class Tower {
 	public Enemy findClosestEnemy(Vector<Enemy> enemies) {
 		Enemy closestEnemy = null;
 		double smallestDistance = Double.MAX_VALUE;
-		Iterator<Enemy> enemyIterator = this.gameData.getEnemies().iterator();
+		Iterator<Enemy> enemyIterator = enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
 			if (!currentEnemy.isLiving()) {

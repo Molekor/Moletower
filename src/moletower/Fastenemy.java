@@ -17,7 +17,7 @@ public class Fastenemy extends Enemy {
 	private static final int baseSize = 20;
 	
 	Fastenemy(Path path) throws Exception {
-		super(path, imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
+		super(imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
 	}
 
 }

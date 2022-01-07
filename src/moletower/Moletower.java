@@ -178,7 +178,9 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	
 	private void addEnemies() throws Exception {
 		if (this.spawningGroup.size() > 0) {
-			this.gameData.addEnemy(this.spawningGroup.remove(0));
+			Enemy newEnemy = this.spawningGroup.remove(0);
+			newEnemy.setPath(this.path);
+			this.gameData.addEnemy(newEnemy);
 			this.spawnSpace = 10;
 		} else {
 			if (this.spawningEnemies.size() > 0) {

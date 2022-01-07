@@ -17,7 +17,7 @@ public class Slowenemy extends Enemy {
 	private static int baseSize = 25;
 	
 	Slowenemy(Path path) throws Exception {
-		super(path, imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
+		super(imagePath, imagePathDamaged, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
 	}
 
 }
