@@ -14,6 +14,7 @@ public class Fasttower extends Tower {
 	
 	public Fasttower(GameData gameData, Point position) {
 		super(gameData, position, baseRange, baseCooldown, basePrice, baseRadius, baseColor);
+		this.name = "Fasttower";
 	}
 	
 }

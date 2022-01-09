@@ -123,6 +123,14 @@ public class GamePanel extends JPanel {
 				(int) currentTower.getSize() * 2, (int) currentTower.getSize() * 2, 0, 360
 			);
 		g.drawArc(currentTower.getPosition().x - currentTower.getRange(), currentTower.getPosition().y - currentTower.getRange(), currentTower.getRange() * 2, currentTower.getRange() * 2, 0, 360);
+
+		if (currentTower.isSelected()) {
+			g.setColor(Color.CYAN);
+			g.drawArc(
+					(int) (currentTower.getPosition().x - currentTower.getSize()) - 1, (int) (currentTower.getPosition().y - currentTower.getSize() - 1),
+					(int) currentTower.getSize() * 2 + 2, (int) currentTower.getSize() * 2 + 2, 0, 360
+				);
+		}
 		g.setColor(Color.BLACK);
 		g.fillArc(currentTower.getPosition().x - 5, currentTower.getPosition().y - 5, 10, 10, 0,360);
 	}

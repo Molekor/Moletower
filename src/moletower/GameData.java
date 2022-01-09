@@ -16,6 +16,7 @@ public class GameData {
 	private boolean gameActive = false;
 	private boolean moneyWarning;
 	private Tower towerToPlace;
+	private Tower selectedTower;
 	
 	public GameData() {
 		this.enemies = new Vector<Enemy>();
@@ -92,8 +93,22 @@ public class GameData {
 	public void setTowerToPlace(Tower tower) {
 		this.towerToPlace = tower;
 	}
+	
 	public Tower getTowerToPlace() {
 		return this.towerToPlace;
+	}
+
+	public void setSelectedTower(Tower selectedTower) {
+		// Unselect the last selected tower
+		if (this.selectedTower != null){
+			this.selectedTower.setIsSelected(false);
+		}
+		if (selectedTower != null ) {
+			this.selectedTower = selectedTower;
+			this.selectedTower.setIsSelected(true);
+		} else {
+			this.selectedTower = null;
+		}
 	}
 }
 

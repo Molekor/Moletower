@@ -14,17 +14,22 @@ public class GameWindow extends JPanel {
 	private JFrame frame;
 	private JPanel buttonPanel;
 	private GamePanel gamePanel;
+	private InfoPanel infoPanel;
 
-	public GameWindow(GamePanel gamePanel, ButtonPanel buttonPanel) {
+	public GameWindow(GamePanel gamePanel, ButtonPanel buttonPanel, InfoPanel infoPanel) {
 		this.gamePanel = gamePanel;
 		this.buttonPanel = buttonPanel;
-		
+		this.infoPanel = infoPanel;
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Moletower");
 		frame.add(this.gamePanel, BorderLayout.LINE_START);
-		frame.add(this.buttonPanel, BorderLayout.LINE_END);
-		//frame.setContentPane(this);
+		JPanel sidePanel = new JPanel();
+		sidePanel.setLayout(new BorderLayout());
+		sidePanel.setMinimumSize(infoPanel.getMinimumSize());
+		sidePanel.add(this.buttonPanel, BorderLayout.PAGE_START);
+		sidePanel.add(this.infoPanel, BorderLayout.PAGE_END);
+		frame.add(sidePanel, BorderLayout.LINE_END);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);

@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -41,6 +42,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	private Vector<Vector<Enemy>> spawningEnemies;
 	private Vector<Enemy> spawningGroup;
 	private Vector<Long> spawnPauses;
+	private InfoPanel infoPanel;
 	
 	public static void main(String[] args) {
 		new Moletower();
@@ -74,7 +76,9 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 		this.buttonPanel.addButton(this.fasttowerButton);
 		this.buttonPanel.addButton(this.startButton);
 		
-		this.gameWindow = new GameWindow(this.gamePanel, this.buttonPanel);
+		this.infoPanel = new InfoPanel(this);
+		
+		this.gameWindow = new GameWindow(this.gamePanel, this.buttonPanel, this.infoPanel);
 		this.mover = new MainMover(this.gameData);
 		Thread gameThread = new Thread(this);
 		gameThread.start();
@@ -134,10 +138,9 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 				}
 				Tower placingTower = this.gameData.getTowerToPlace();
 				if (placingTower != null) {
-					int mouseX = MouseInfo.getPointerInfo().getLocation().x - this.gamePanel.getLocationOnScreen().x;
-					int mouseY = MouseInfo.getPointerInfo().getLocation().y - this.gamePanel.getLocationOnScreen().y;
+					Point mousePosition = this.getMousePosition();
 					placingTower.setCanBePlaced(placingTower.checkDistance(this.path, this.gameData.getEnemies()));
-					placingTower.setPosition(new Point(mouseX, mouseY));
+					placingTower.setPosition(mousePosition);
 					this.gamePanel.setTowerToPlace(placingTower);
 				} else {
 					this.gamePanel.setTowerToPlace(null);
@@ -152,6 +155,13 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 				System.exit(1);
 			}
 		}
+	}
+
+	private Point getMousePosition() {
+		int mouseX = MouseInfo.getPointerInfo().getLocation().x - this.gamePanel.getLocationOnScreen().x;
+		int mouseY = MouseInfo.getPointerInfo().getLocation().y - this.gamePanel.getLocationOnScreen().y;
+		return new Point(mouseX, mouseY);
+		
 	}
 
 	private void loadEnemyFile(String roundFileName) throws IOException, Exception {
@@ -195,9 +205,13 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.firetowerButton) {
 			this.gameData.setMoneyWarning(false);
-				this.gameData.setTowerToPlace(new Firetower(this.gameData, this.gamePanel.mousePosition));		
+			this.gameData.setTowerToPlace(new Firetower(this.gameData, this.gamePanel.mousePosition));	
+			this.gameData.setSelectedTower(null);
+			this.infoPanel.setSelectedTower(null);
 		} else if (e.getSource() == this.fasttowerButton) {
 			this.gameData.setTowerToPlace(new Fasttower(this.gameData, this.gamePanel.mousePosition));
+			this.gameData.setSelectedTower(null);
+			this.infoPanel.setSelectedTower(null);
 		} else if (e.getSource() == this.startButton) {
 			this.gameData.setGameActive(!this.gameData.isGameActive());
 		}
@@ -208,23 +222,44 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 		} else {
 			this.gameData.setMoneyWarning(false);
 		}
+		
+		if (e.getActionCommand().equals(InfoPanel.UPGRADE_TOWER_ACTION)) {
+			System.out.println(InfoPanel.UPGRADE_TOWER_ACTION);
+		}
 	}
 
-	private void tryToPlaceTower() {
-		if (this.gameData.getTowerToPlace() != null) {
-			if (this.gameData.getTowerToPlace().checkDistance(this.path, this.gameData.getEnemies())) {
-				this.gameData.getTowerToPlace().setActive(true);
-				this.gameData.addTower(this.gameData.getTowerToPlace());
-				this.gameData.adjustMoney(-this.gameData.getTowerToPlace().getPrice());
+	private void tryToPlaceTower(Tower tower) {
+			if (tower.checkDistance(this.path, this.gameData.getEnemies())) {
+				tower.setActive(true);
+				this.gameData.addTower(tower);
+				this.gameData.adjustMoney(-tower.getPrice());
 			}
-		}
-		this.gameData.setTowerToPlace(null);
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getSource() == this.gamePanel) {
-			this.tryToPlaceTower();
+			Tower placingTower = this.gameData.getTowerToPlace();
+			if (placingTower != null) {
+				this.tryToPlaceTower(placingTower);
+				this.gameData.setTowerToPlace(null);
+			} else {
+				Point mousePosition = this.getMousePosition();
+				Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
+				Tower selectedTower = null;
+				while (towerIterator.hasNext()) {
+					Tower tower = towerIterator.next();
+					if (MathHelper.getDistance(mousePosition, tower.getPosition()) <= tower.getSize()) {
+						selectedTower = tower;
+						break;
+					}
+				}
+				this.gameData.setSelectedTower(selectedTower);
+				this.infoPanel.setSelectedTower(selectedTower);
+			}	
+		} else {
+			this.gameData.setSelectedTower(null);
+			this.infoPanel.setSelectedTower(null);
 		}
 	}
 

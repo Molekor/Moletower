@@ -17,6 +17,8 @@ public abstract class Tower {
 	protected GameData gameData;
 	protected long lastShootingTick = -1000;
 	protected Color color; // @TODO Don't store paint information in the data object!
+	protected boolean selected = false;
+	protected String name;
 
 	protected Tower(GameData gameData, Point position, int range, int cooldown, int price, int radius, Color color) {
 		this.gameData = gameData;
@@ -125,5 +127,21 @@ public abstract class Tower {
 
 	public Color getColor() {
 		return this.color;
+	}
+
+	public void setIsSelected(boolean isSelected) {
+		this.selected = isSelected;
+	}
+	
+	public boolean isSelected() {
+		return this.selected;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 }

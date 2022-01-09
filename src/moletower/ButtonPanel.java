@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 public class ButtonPanel extends JPanel {
 
 	public ButtonPanel() {
-		this.setPreferredSize(new Dimension(100,600));
+		this.setPreferredSize(new Dimension(100,300));
 		this.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		this.setBorder(BorderFactory.createLineBorder(Color.RED));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
