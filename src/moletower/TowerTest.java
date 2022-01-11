@@ -20,7 +20,7 @@ class TowerTest {
 		public static final Color baseColor = Color.BLACK;
 		
 		public TestTower(GameData gameData) {
-			super(gameData, new Point(1,1),baseRange, baseCooldown, basePrice, baseRadius, baseColor);
+			super(new Point(1,1),baseRange, baseCooldown, basePrice, baseRadius, baseColor);
 		}		
 	}
 	

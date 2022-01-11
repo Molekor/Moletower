@@ -12,8 +12,8 @@ public class Fasttower extends Tower {
 	
 	public static final Color baseColor = Color.BLUE;
 	
-	public Fasttower(GameData gameData, Point position) {
-		super(gameData, position, baseRange, baseCooldown, basePrice, baseRadius, baseColor);
+	public Fasttower(Point position) {
+		super(position, baseRange, baseCooldown, basePrice, baseRadius, baseColor);
 		this.name = "Fasttower";
 	}
 	

@@ -1,6 +1,8 @@
 package moletower;
 
 import java.awt.Point;
+import java.util.Iterator;
+import java.util.Vector;
 
 public class MathHelper {
 	
@@ -33,5 +35,29 @@ public class MathHelper {
 	
 	public static double getDistancePointToSegment(Point p, Point v, Point w) { 
 		return Math.sqrt(distToSegmentSquared(p, v, w)); 
+	}
+	
+	public static boolean checkDistance(Tower towerToPlace, Path path, Vector<Tower> towers) {
+		double minDistance = Double.MAX_VALUE;
+		Iterator<Point> pathPointIterator = path.getPathPoints().iterator();
+		Point thisPathPoint = pathPointIterator.next();
+		Point nextPathPoint;
+		while (pathPointIterator.hasNext()) {
+			nextPathPoint = pathPointIterator.next();
+			double distance = MathHelper.getDistancePointToSegment(towerToPlace.getPosition(), thisPathPoint, nextPathPoint) - (path.getThickness() / 2);
+			if (distance < minDistance) {
+				minDistance = distance;
+			}
+			thisPathPoint = nextPathPoint;
+		}
+		Iterator<Tower> towerIterator = towers.iterator();
+		while (towerIterator.hasNext()) {
+			Tower otherTower = towerIterator.next();
+			double distance = MathHelper.getDistance(towerToPlace.getPosition(), otherTower.getPosition()) - otherTower.getSize();
+			if (distance < minDistance) {
+				minDistance = distance;
+			}
+		}
+		return minDistance > (towerToPlace.getSize());
 	}
 }

@@ -11,8 +11,8 @@ public class Firetower extends Tower {
 	public static final int baseRadius = 30;
 	public static final Color baseColor = Color.RED;
 	
-	public Firetower(GameData gameData, Point position) {
-		super(gameData, position, baseRange, baseCooldown, basePrice, baseRadius, baseColor);
+	public Firetower(Point position) {
+		super(position, baseRange, baseCooldown, basePrice, baseRadius, baseColor);
 		this.name = "Firetower";
 	}
 	

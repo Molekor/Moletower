@@ -14,14 +14,12 @@ public abstract class Tower {
 	protected boolean isActive = false;
 	protected int radius;
 	protected boolean canBePlaced = false;
-	protected GameData gameData;
 	protected long lastShootingTick = -1000;
 	protected Color color; // @TODO Don't store paint information in the data object!
 	protected boolean selected = false;
 	protected String name;
 
-	protected Tower(GameData gameData, Point position, int range, int cooldown, int price, int radius, Color color) {
-		this.gameData = gameData;
+	protected Tower(Point position, int range, int cooldown, int price, int radius, Color color) {
 		this.position = position;
 		this.range = range;
 		this.cooldown = cooldown;
@@ -69,29 +67,7 @@ public abstract class Tower {
 		return closestEnemy;
 	}
 	
-	public boolean checkDistance(Path path, Vector<Enemy> enemies) {
-		double minDistance = Double.MAX_VALUE;
-		Iterator<Point> pathPointIterator = path.getPathPoints().iterator();
-		Point thisPathPoint = pathPointIterator.next();
-		Point nextPathPoint;
-		while (pathPointIterator.hasNext()) {
-			nextPathPoint = pathPointIterator.next();
-			double distance = MathHelper.getDistancePointToSegment(this.position, thisPathPoint, nextPathPoint) - (path.getThickness() / 2);
-			if (distance < minDistance) {
-				minDistance = distance;
-			}
-			thisPathPoint = nextPathPoint;
-		}
-		Iterator<Tower> towerIterator = this.gameData.getTowers().iterator();
-		while (towerIterator.hasNext()) {
-			Tower otherTower = towerIterator.next();
-			double distance = MathHelper.getDistance(this.position, otherTower.getPosition()) - otherTower.getSize();
-			if (distance < minDistance) {
-				minDistance = distance;
-			}
-		}
-		return minDistance > (this.gameData.getTowerToPlace().getSize());
-	}
+
 	
 	public boolean canBePlaced() {
 		return canBePlaced;

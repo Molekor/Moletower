@@ -139,7 +139,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 				Tower placingTower = this.gameData.getTowerToPlace();
 				if (placingTower != null) {
 					Point mousePosition = this.getMousePosition();
-					placingTower.setCanBePlaced(placingTower.checkDistance(this.path, this.gameData.getEnemies()));
+					placingTower.setCanBePlaced(MathHelper.checkDistance(placingTower, this.path, this.gameData.getTowers()));
 					placingTower.setPosition(mousePosition);
 					this.gamePanel.setTowerToPlace(placingTower);
 				} else {
@@ -205,11 +205,11 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.firetowerButton) {
 			this.gameData.setMoneyWarning(false);
-			this.gameData.setTowerToPlace(new Firetower(this.gameData, this.gamePanel.mousePosition));	
+			this.gameData.setTowerToPlace(new Firetower(this.gamePanel.mousePosition));	
 			this.gameData.setSelectedTower(null);
 			this.infoPanel.setSelectedTower(null);
 		} else if (e.getSource() == this.fasttowerButton) {
-			this.gameData.setTowerToPlace(new Fasttower(this.gameData, this.gamePanel.mousePosition));
+			this.gameData.setTowerToPlace(new Fasttower(this.gamePanel.mousePosition));
 			this.gameData.setSelectedTower(null);
 			this.infoPanel.setSelectedTower(null);
 		} else if (e.getSource() == this.startButton) {
@@ -229,7 +229,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener 
 	}
 
 	private void tryToPlaceTower(Tower tower) {
-			if (tower.checkDistance(this.path, this.gameData.getEnemies())) {
+			if (MathHelper.checkDistance(tower, this.path, this.gameData.getTowers())) {
 				tower.setActive(true);
 				this.gameData.addTower(tower);
 				this.gameData.adjustMoney(-tower.getPrice());
