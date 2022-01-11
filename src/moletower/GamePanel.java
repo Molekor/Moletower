@@ -18,13 +18,11 @@ public class GamePanel extends JPanel {
 	private Vector<Shot> shots;
 	private Vector<Tower> towers;
 	private Tower towerToPlace;
-	private GraphicsHelper graphicsHelper;
 	public Point mousePosition = new Point(1,1);
 	public boolean mouseIsPressed = false;
 	
-	public GamePanel(GraphicsHelper graphicsHelper, GameData gameData, Path path) {
+	public GamePanel(GameData gameData, Path path) {
 		this.setPreferredSize(new Dimension(700,600));
-		this.graphicsHelper = graphicsHelper;
 		this.path = path;
 		this.gameData = gameData;
 		this.enemies = new Vector<Enemy>();
@@ -65,7 +63,7 @@ public class GamePanel extends JPanel {
 			Shot currentShot = shotIterator.next();
 				if (currentShot.isLiving()) {
 					g.setColor(Color.CYAN);
-					this.graphicsHelper.drawThickLineFromAngle(g, currentShot.getPosition(), currentShot.getAngle(), 2 , 20);
+					GraphicsHelper.drawThickLineFromAngle(g, currentShot.getPosition(), currentShot.getAngle(), 2 , 20);
 				} else {
 					g.setColor(Color.BLACK);
 					g.fillArc((int) currentShot.getPosition().x - 2, (int) currentShot.getPosition().y - 2, 4, 4, 0, 360);
@@ -145,7 +143,7 @@ public class GamePanel extends JPanel {
 			if (lastPoint != null) {
 				nextPoint = pathIterator.next();
 				g.setColor(Color.DARK_GRAY);
-				this.graphicsHelper.drawThickLine(g, lastPoint, nextPoint, this.path.getThickness());
+				GraphicsHelper.drawThickLine(g, lastPoint, nextPoint, this.path.getThickness());
 				g.fillArc(nextPoint.x - (this.path.getThickness()/2)+1, nextPoint.y - (this.path.getThickness()/2)+1, this.path.getThickness()-2, this.path.getThickness()-2, 0, 360);
 				g.setColor(Color.RED);
 				g.drawLine(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y);

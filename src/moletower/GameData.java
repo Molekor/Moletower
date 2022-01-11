@@ -23,7 +23,7 @@ public class GameData {
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
 		this.lives = 50;
-		this.money = 90;
+		this.money = 190;
 		this.tick = 0;
 	}
 

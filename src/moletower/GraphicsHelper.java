@@ -44,7 +44,7 @@ public class GraphicsHelper {
 	private static HashMap<String, BufferedImage> baseImages = new HashMap<String, BufferedImage>();
 	private static HashMap<ImageHash, BufferedImage> darkenedImages = new HashMap<ImageHash, BufferedImage>();
 	
-	public void drawThickLine(Graphics g, Point p1, Point p2, int thickness) {
+	public static void drawThickLine(Graphics g, Point p1, Point p2, int thickness) {
 		double angle = MathHelper.calculateAngle(p1.x, p1.y, p2.x, p2.y);
 		double dx = (-(thickness/2) * Math.sin(angle));
 		double dy = ((thickness/2) * Math.cos(angle));
@@ -63,10 +63,10 @@ public class GraphicsHelper {
 		g.fillPolygon(xPoints, yPoints, 4);
 	}
 
-	public void drawThickLineFromAngle(Graphics g, Point point, double angle, int thickness, int length) {
+	public static void drawThickLineFromAngle(Graphics g, Point point, double angle, int thickness, int length) {
 		int dx = (int) ((length/2) * Math.cos(angle));
 		int dy = (int) ((length/2) * Math.sin(angle));
-		drawThickLine(g, point, new Point(point.x + dx, point.y + dy),thickness);
+		GraphicsHelper.drawThickLine(g, point, new Point(point.x + dx, point.y + dy),thickness);
 	}
 
 	public static BufferedImage getDarkenedImage(String imagePath, float brightness) {

@@ -5,7 +5,7 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.Vector;
 
-public abstract class Tower {
+public class Tower {
 
 	protected Point position;
 	protected int range;
@@ -19,8 +19,9 @@ public abstract class Tower {
 	protected boolean selected = false;
 	protected String name;
 
-	protected Tower(Point position, int range, int cooldown, int price, int radius, Color color) {
-		this.position = position;
+	protected Tower(String name, int range, int cooldown, int price, int radius, Color color) {
+		this.name = name;
+		this.position = new Point(1,1);
 		this.range = range;
 		this.cooldown = cooldown;
 		this.price = price;
