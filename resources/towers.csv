@@ -1,4 +1,4 @@
-#name,size,price1,price2,price3,range1,range2,range3,cooldown1,cooldown2,cooldown3,damage1,damage2,damage3
+name,size,price1,price2,price3,range1,range2,range3,cooldown1,cooldown2,cooldown3,damage1,damage2,damage3
 Seedtower,30,30,50,200,150,170,200,20,18,15,1,2,4
 Firetower,10,50,90,300,55,70,100,7,5,3,1,1,2
 Muncher,50,100,250,1000,100,150,160,50,40,35,20,35,50

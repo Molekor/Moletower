@@ -4,9 +4,6 @@ import java.util.Vector;
 
 public class GameData {
 	
-	// We use one copy of game data to compute the next move, and one copy to draw the results of the last move
-	// Vectors can be cloned thread-safe so we use them for that purpose
-	// @TODO Maybe replace with a class that only holds paint information of the enemies
 	private Vector<Enemy> enemies; // The enemies that are used for computing moves
 	private Vector<Tower> towers;
 	private Vector<Shot> shots;
@@ -23,7 +20,7 @@ public class GameData {
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
 		this.lives = 50;
-		this.money = 190;
+		this.money = 90;
 		this.tick = 0;
 	}
 

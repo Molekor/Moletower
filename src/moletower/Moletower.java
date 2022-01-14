@@ -88,32 +88,12 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 	private Vector<TowerData> loadTowerFile(String filename) throws IOException {
 		InputStream inputStream = this.getClass().getResourceAsStream(filename);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		Vector<TowerData> allTowerData = new Vector<TowerData>();
-		for (String line; (line = reader.readLine()) != null; ) {
-			if (line.startsWith("#")) {
-				continue;
-			}
-			String[] rawData = line.split(",");
-			if (rawData.length == 14) {
-				TowerData towerData = new TowerData(3);
-				towerData.setName(rawData[0]);
-				towerData.setSize(Integer.parseInt(rawData[1]));
-				towerData.setPrice(Integer.parseInt(rawData[2]),1);
-				towerData.setPrice(Integer.parseInt(rawData[3]),2);
-				towerData.setPrice(Integer.parseInt(rawData[4]),3);
-				towerData.setRange(Integer.parseInt(rawData[5]),1);
-				towerData.setRange(Integer.parseInt(rawData[6]),2);
-				towerData.setRange(Integer.parseInt(rawData[7]),3);
-				towerData.setCooldown(Integer.parseInt(rawData[8]),1);
-				towerData.setCooldown(Integer.parseInt(rawData[9]),2);
-				towerData.setCooldown(Integer.parseInt(rawData[10]),3);
-				towerData.setDamage(Integer.parseInt(rawData[11]),1);
-				towerData.setDamage(Integer.parseInt(rawData[12]),2);
-				towerData.setDamage(Integer.parseInt(rawData[13]),3);
-				allTowerData.add(towerData);
-			}
+		Vector<String> lines = new Vector<String>();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			lines.add(line);
 		}
-		return allTowerData;
+		return TowerData.create(lines);
 	}
 
 	private Path getPath(String pathFileName) throws IOException {

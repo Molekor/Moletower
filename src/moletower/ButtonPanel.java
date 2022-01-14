@@ -11,8 +11,6 @@ import javax.swing.JPanel;
 
 public class ButtonPanel extends JPanel {
 
-	public static final String BUY_TOWER_ACTION = "BUY_TOWER";
-
 	public ButtonPanel() {
 		this.setPreferredSize(new Dimension(100,300));
 		this.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
