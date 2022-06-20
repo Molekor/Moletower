@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
  * @author Molekor
  *
  */
-public class Moletower extends MouseAdapter implements Runnable, ActionListener, BuyListener {
+public class Moletower extends MouseAdapter implements Runnable, ActionListener, BuyListener, UpgradeListener {
 
 	private long lastMoveTime; // time we last moved the shots and enemies
 	private long timeSinceLastMove = 0; // how long has it been since the last move
@@ -76,7 +76,8 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		this.startButton.addActionListener(this);
 		this.buttonPanel.addButton(this.startButton);
 		
-		this.infoPanel = new InfoPanel(this);
+		this.infoPanel = new InfoPanel();
+		this.infoPanel.setUpgradeActionListener(this);
 		
 		this.gameWindow = new GameWindow(this.gamePanel, this.buttonPanel, this.infoPanel);
 		this.mover = new MainMover(this.gameData);
@@ -214,11 +215,13 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		System.out.println("Main action");
 		if (e.getSource() == this.startButton) {
 			this.gameData.setGameActive(!this.gameData.isGameActive());
 		}
 		if (e.getActionCommand().equals(InfoPanel.UPGRADE_TOWER_ACTION)) {
 			System.out.println(InfoPanel.UPGRADE_TOWER_ACTION);
+			this.requestTowerUpgrade(this.gameData.getSelectedTower());
 		}
 	}
 
@@ -258,11 +261,10 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 	}
 
 	public void requestTowerBuy(int towerTypeId) {
-		this.gameData.setMoneyWarning(false);
 		this.gameData.setSelectedTower(null);
 		this.infoPanel.setSelectedTower(null);
 		TowerData towerData = this.allTowerData.get(towerTypeId);
-		Tower newTower = new Tower(towerData.getName(), towerData.getRange(1), towerData.getCooldown(1), towerData.getPrice(1), towerData.getSize(), Color.RED);
+		Tower newTower = new Tower(towerData);
 		// Check if we have the money to place the selected tower
 		if (newTower.getPrice() > this.gameData.getMoney()) {
 			this.gameData.setMoneyWarning(true);
@@ -270,6 +272,14 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		} else {
 			this.gameData.setMoneyWarning(false);
 			this.gameData.setTowerToPlace(newTower);
+		}
+	}
+
+	public void requestTowerUpgrade(Tower towerToUpgrade) {
+		int price = towerToUpgrade.getPrice();
+		if (price <= this.gameData.getMoney()) {
+			towerToUpgrade.upgrade();
+			this.gameData.adjustMoney(-price);
 		}
 	}
 

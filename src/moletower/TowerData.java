@@ -53,7 +53,7 @@ public class TowerData {
 	}
 
 	public int getPrice(int level) {
-		if (level < 0 || level >= levels) {
+		if (level < 0 || level > levels) {
 			return -1;
 		}
 		return this.prices[level];
@@ -131,29 +131,29 @@ public class TowerData {
 				} else if (key.equals(TowerData.SIZE)) {
 					nextTower.setSize(Integer.parseInt(rawData[i]));
 				} else if (key.equals(TowerData.PRICE_1)) {
-					nextTower.setPrice(Integer.parseInt(rawData[i]), 1);
+					nextTower.setPrice(Integer.parseInt(rawData[i]), 0);
 				} else if (key.equals(TowerData.PRICE_2)) {
-					nextTower.setPrice(Integer.parseInt(rawData[i]), 2);
+					nextTower.setPrice(Integer.parseInt(rawData[i]), 1);
 				} else if (key.equals(TowerData.PRICE_3)) {
-					nextTower.setPrice(Integer.parseInt(rawData[i]), 3);
+					nextTower.setPrice(Integer.parseInt(rawData[i]), 2);
 				} else if (key.equals(TowerData.COOLDOWN_1)) {
-					nextTower.setCooldown(Integer.parseInt(rawData[i]), 1);
+					nextTower.setCooldown(Integer.parseInt(rawData[i]), 0);
 				} else if (key.equals(TowerData.COOLDOWN_2)) {
-					nextTower.setCooldown(Integer.parseInt(rawData[i]), 2);
+					nextTower.setCooldown(Integer.parseInt(rawData[i]), 1);
 				} else if (key.equals(TowerData.COOLDOWN_3)) {
-					nextTower.setCooldown(Integer.parseInt(rawData[i]), 3);
+					nextTower.setCooldown(Integer.parseInt(rawData[i]), 2);
 				} else if (key.equals(TowerData.DAMAGE_1)) {
-					nextTower.setDamage(Integer.parseInt(rawData[i]), 1);
+					nextTower.setDamage(Integer.parseInt(rawData[i]), 0);
 				} else if (key.equals(TowerData.DAMAGE_2)) {
-					nextTower.setDamage(Integer.parseInt(rawData[i]), 2);
+					nextTower.setDamage(Integer.parseInt(rawData[i]), 1);
 				} else if (key.equals(TowerData.DAMAGE_3)) {
-					nextTower.setDamage(Integer.parseInt(rawData[i]), 3);
+					nextTower.setDamage(Integer.parseInt(rawData[i]), 2);
 				} else if (key.equals(TowerData.RANGE_1)) {
-					nextTower.setRange(Integer.parseInt(rawData[i]), 1);
+					nextTower.setRange(Integer.parseInt(rawData[i]), 0);
 				} else if (key.equals(TowerData.RANGE_2)) {
-					nextTower.setRange(Integer.parseInt(rawData[i]), 2);
+					nextTower.setRange(Integer.parseInt(rawData[i]), 1);
 				} else if (key.equals(TowerData.RANGE_3)) {
-					nextTower.setRange(Integer.parseInt(rawData[i]), 3);
+					nextTower.setRange(Integer.parseInt(rawData[i]), 2);
 				}
 			}
 			allTowerData.add(nextTower);

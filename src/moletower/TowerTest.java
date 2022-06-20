@@ -19,8 +19,8 @@ class TowerTest {
 		public static final int baseRadius = 10;
 		public static final Color baseColor = Color.BLACK;
 		
-		public TestTower(GameData gameData) {
-			super("TestTower", baseRange, baseCooldown, basePrice, baseRadius, baseColor);
+		public TestTower(TowerData towerData) {
+			super(towerData);
 		}		
 	}
 	

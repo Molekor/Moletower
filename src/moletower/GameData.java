@@ -20,7 +20,7 @@ public class GameData {
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
 		this.lives = 50;
-		this.money = 90;
+		this.money = 900;
 		this.tick = 0;
 	}
 
@@ -106,6 +106,10 @@ public class GameData {
 		} else {
 			this.selectedTower = null;
 		}
+	}
+
+	public Tower getSelectedTower() {
+		return this.selectedTower;
 	}
 }
 

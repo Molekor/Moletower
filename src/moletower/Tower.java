@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class Tower {
+	
+	protected static final int MAX_LEVEL = 2;
 
 	protected Point position;
 	protected int range;
@@ -18,15 +20,21 @@ public class Tower {
 	protected Color color; // @TODO Don't store paint information in the data object!
 	protected boolean selected = false;
 	protected String name;
-
-	protected Tower(String name, int range, int cooldown, int price, int radius, Color color) {
-		this.name = name;
+	protected int upgradePrice = -1;
+	protected int level = 0;
+	protected TowerData towerData;
+	protected boolean canBeUpgraded = true;
+	
+	public Tower(TowerData towerData) {
+		this.towerData = towerData;
+		this.name = towerData.getName();
 		this.position = new Point(1,1);
-		this.range = range;
-		this.cooldown = cooldown;
-		this.price = price;
-		this.radius = radius;
-		this.color = color;
+		this.range = towerData.getRange(this.level);
+		this.cooldown = towerData.getCooldown(this.level);
+		this.price = towerData.getPrice(this.level);
+		this.radius = towerData.getSize();
+		this.color = Color.RED;
+		this.upgradePrice = towerData.getPrice(this.level + 1);
 	}
 
 	public Shot shoot(Vector<Enemy> enemies, long tick) {
@@ -120,5 +128,32 @@ public class Tower {
 	
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void upgrade() {
+		if (this.level < Tower.MAX_LEVEL) {
+			this.level++;	
+			this.range = towerData.getRange(this.level);
+			this.cooldown = towerData.getCooldown(this.level);
+			if (this.level < Tower.MAX_LEVEL) {
+				this.upgradePrice = towerData.getPrice(this.level + 1);
+			} else {
+				this.upgradePrice = -1;
+				this.canBeUpgraded = false;
+			}
+		}
+	}
+	
+	public boolean canBeUpgraded() {
+		return this.canBeUpgraded;
+	}
+	
+	public int getUpgradePrice() {
+		return this.upgradePrice;
+	}
+
+	public int getLevel() {
+		// TODO Auto-generated method stub
+		return this.level;
 	}
 }
