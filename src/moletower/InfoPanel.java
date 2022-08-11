@@ -1,12 +1,9 @@
 package moletower;
 
-import java.awt.Button;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -53,7 +50,7 @@ public class InfoPanel extends JPanel implements ActionListener {
 		if (this.selectedTower != null) {
 			this.position.setText(this.selectedTower.getPosition().x + "," + this.selectedTower.getPosition().y);
 			this.name.setText(selectedTower.getName() + " Lvl " + selectedTower.getLevel());
-			if (tower.canBeUpgraded) {
+			if (tower.canBeUpgraded()) {
 				this.upgradeButton.setLabel("Upgrade " + tower.getUpgradePrice() + "$");
 			} else {
 				this.upgradeButton.setLabel("Upgrades complete");

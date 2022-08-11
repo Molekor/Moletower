@@ -7,32 +7,32 @@ import java.util.Vector;
 
 public class Tower {
 	
-	protected static final int MAX_LEVEL = 2;
-
-	protected Point position;
-	protected int range;
-	protected long cooldown;
-	protected int price;
-	protected boolean isActive = false;
-	protected int radius;
-	protected boolean canBePlaced = false;
-	protected long lastShootingTick = -1000;
-	protected Color color; // @TODO Don't store paint information in the data object!
-	protected boolean selected = false;
-	protected String name;
-	protected int upgradePrice = -1;
-	protected int level = 0;
-	protected TowerData towerData;
-	protected boolean canBeUpgraded = true;
+	private Point position;
+	private int range;
+	private long cooldown;
+	private int price;
+	private int size;
+	private boolean isActive = false;
+	private boolean canBePlaced = false;
+	private long lastShootingTick = -1000;
+	private Color color; // @TODO Don't store paint information in the data object!
+	private boolean selected = false;
+	private String name;
+	private int upgradePrice = -1;
+	private int damage;
+	private int level = 1;
+	private TowerData towerData;
+	private boolean canBeUpgraded = true;
 	
 	public Tower(TowerData towerData) {
+		this.position = new Point(1,1);
 		this.towerData = towerData;
 		this.name = towerData.getName();
-		this.position = new Point(1,1);
 		this.range = towerData.getRange(this.level);
 		this.cooldown = towerData.getCooldown(this.level);
 		this.price = towerData.getPrice(this.level);
-		this.radius = towerData.getSize();
+		this.size = towerData.getSize();
+		this.damage = towerData.getDamage(this.level);
 		this.color = Color.RED;
 		this.upgradePrice = towerData.getPrice(this.level + 1);
 	}
@@ -55,7 +55,7 @@ public class Tower {
 	
 	/**
 	 * 
-	 * @param startPoint The coordinates from where we look
+	 * @param enemies : List of all enemies on the board
 	 * @return the enemy closest to the given coordinates, null if no enemy is found
 	 */
 	public Enemy findClosestEnemy(Vector<Enemy> enemies) {
@@ -76,8 +76,6 @@ public class Tower {
 		return closestEnemy;
 	}
 	
-
-	
 	public boolean canBePlaced() {
 		return canBePlaced;
 	}
@@ -94,16 +92,12 @@ public class Tower {
 		this.position = position;
 	}
 
-	public void setActive(boolean active) {
-		this.isActive = active;
-	}
-
 	public int getPrice() {
 		return this.price;
 	}
 
 	public double getSize() {
-		return this.radius;
+		return this.size;
 	}
 	
 	public int getRange() {
@@ -130,12 +124,30 @@ public class Tower {
 		this.name = name;
 	}
 
+	public long getCooldown() {
+		return cooldown;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+	
+	public int getDamage() {
+		return damage;
+	}
+
+	public void setDamage(int damage) {
+		this.damage = damage;
+	}
+	
 	public void upgrade() {
-		if (this.level < Tower.MAX_LEVEL) {
+		if (this.level < TowerData.MAX_LEVEL) {
 			this.level++;	
 			this.range = towerData.getRange(this.level);
 			this.cooldown = towerData.getCooldown(this.level);
-			if (this.level < Tower.MAX_LEVEL) {
+			this.damage = towerData.getDamage(this.level);
+			this.price = towerData.getPrice(this.level);
+			if (this.level < TowerData.MAX_LEVEL) {
 				this.upgradePrice = towerData.getPrice(this.level + 1);
 			} else {
 				this.upgradePrice = -1;
@@ -153,7 +165,13 @@ public class Tower {
 	}
 
 	public int getLevel() {
-		// TODO Auto-generated method stub
 		return this.level;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+	public boolean isActive() {
+		return this.isActive;
 	}
 }

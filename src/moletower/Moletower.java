@@ -1,7 +1,6 @@
 package moletower;
 
 import java.awt.Button;
-import java.awt.Color;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -18,7 +17,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 /**
- * The master class of the game.
+ * The main class of the game.
  * 
  * @author Molekor
  *
@@ -215,7 +214,6 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println("Main action");
 		if (e.getSource() == this.startButton) {
 			this.gameData.setGameActive(!this.gameData.isGameActive());
 		}

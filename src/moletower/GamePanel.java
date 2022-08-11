@@ -111,7 +111,7 @@ public class GamePanel extends JPanel {
 
 	private void drawTower(Graphics g, Tower currentTower) {
 		g.setColor(currentTower.getColor());
-		if (currentTower.isActive || currentTower.canBePlaced) {
+		if (currentTower.isActive() || currentTower.canBePlaced()) {
 			g.setColor(currentTower.getColor());
 		} else {
 			g.setColor(Color.DARK_GRAY);

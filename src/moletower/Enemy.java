@@ -43,7 +43,6 @@ public abstract class Enemy {
 		this.deadDuration = deadDuration;
 		this.speed = speed;
 		this.imagePath = imagePath;
-		this.image = GraphicsHelper.getImage(imagePath);
 		this.size = baseSize;
 	}
 
@@ -172,6 +171,9 @@ public abstract class Enemy {
 	}
 
 	public Image getImage() {
+		if (this.image == null) {
+			this.image = GraphicsHelper.getImage(imagePath);
+		}
 		return this.image;
 	}
 }
