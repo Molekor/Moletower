@@ -8,7 +8,7 @@ import java.awt.Point;
  * @author Molekor
  *
  */
-public abstract class Enemy {
+public class Enemy {
 
 	protected Path path;
 	protected int nextPathPoint = 1;
@@ -17,7 +17,7 @@ public abstract class Enemy {
 	protected double y;
 	protected boolean hasReachedExit = false;
 	protected long diedAt = 0; // at what time has the enemy been disposed
-	protected long deadDuration; // how long shall we show the dead enemy image
+	protected long deadDuration = 500; // how long shall we show the dead enemy image
 	protected boolean isLiving = true;
 	protected boolean canBeDeleted = false; // we have shown the dead enemy image long enough
 	protected int value; // how much money do we earn for disposing this enemy
@@ -26,21 +26,18 @@ public abstract class Enemy {
 	protected String imagePath;
 	protected int size;
 	
-	/**
-	 * Constructor. Sets the path points this enemy will follow, and sets the first
-	 * path point as its first target.
-	 * @param path
-	 * @throws Exception
-	 */
-	public Enemy(String imagePath, double speed, int value, int lives, int deadDuration, int baseSize) {
-		this.speed = speed;
-		this.value = value;
-		this.lives = lives;
+	public Enemy() {
+		
+	}
+	
+	public Enemy(EnemyData enemyData, Path path) {
+		this.setPath(path);
+		this.speed = enemyData.getSpeed();
+		this.value = enemyData.getValue();
+		this.lives = enemyData.getHealth();
 		this.baseLives = lives;
-		this.deadDuration = deadDuration;
-		this.speed = speed;
-		this.imagePath = imagePath;
-		this.size = baseSize;
+		this.imagePath = enemyData.getImage();
+		this.size = enemyData.getSize();
 	}
 
 	/**

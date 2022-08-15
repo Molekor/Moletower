@@ -9,20 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TowerTest {
-
-	class TestEnemy extends Enemy {
-		
-		public static int baseLives = 2;
-		public static int baseValue = 3;
-		public static double baseSpeed = 10;
-		public static int deadDuration = 10;
-		public static String imagePath = "foo/bar.png";
-		public static int baseSize = 5;
-		
-		TestEnemy() {
-			super(imagePath, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
-		}
-	}
 	
 	private Point towerPosition; 
 	private Tower testTower;
@@ -48,6 +34,7 @@ class TowerTest {
 		this.towerPosition = new Point(1,1);
 		this.testTower = new Tower(this.towerData);
 		this.enemies = new Vector<Enemy>();
+		
 	}
 	
 	@Test
@@ -72,7 +59,7 @@ class TowerTest {
 	@Test
 	void dontShootAtOutOfRange() {
 		this.testTower.setActive(true);
-		TestEnemy farEnemy = new TestEnemy();
+		Enemy farEnemy = new Enemy();
 		farEnemy.setPosition(new Point(1,1000));
 		this.enemies.add(farEnemy);
 		assertNull(this.testTower.shoot(this.enemies, 1),"Tower fired a shot at an out of range target! Range: " + this.testTower.getRange());
@@ -80,7 +67,7 @@ class TowerTest {
 	
 	private Shot doAShot(int tick) {
 		this.testTower.setActive(true);
-		TestEnemy closeEnemy = new TestEnemy();
+		Enemy closeEnemy = new Enemy();
 		closeEnemy.setPosition(new Point(2,2));
 		this.enemies.add(closeEnemy);
 		return this.testTower.shoot(this.enemies, tick);

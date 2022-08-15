@@ -10,22 +10,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class EnemyTest {
-
-	class TestEnemy extends Enemy {
 		
-		public static int baseLives = 10;
-		public static int baseValue = 3;
-		public static double baseSpeed = 10;
-		public static int deadDuration = 10;
-		public static String imagePath = "foo/bar.png";
-		public static int baseSize = 5;
-		
-		TestEnemy() {
-			super(imagePath, baseSpeed, baseValue, baseLives, deadDuration, baseSize);
-		}
-	}
+	private int baseLives = 10;
+	private int baseValue = 3;
+	private float baseSpeed = 10;
+	private String imagePath = "foo/bar.png";
+	private int baseSize = 5;
 	
-	private TestEnemy enemy;
+	private Enemy enemy;
 	private Path path;
 	private Point first = new Point(10,20);
 	private Point second = new Point (20, 30);
@@ -33,18 +25,28 @@ public class EnemyTest {
 	
 	@BeforeEach
 	void setupTestEnemy() {
-		enemy = new TestEnemy();
+		EnemyData enemyData = new EnemyData();
+		enemyData.setHealth(baseLives);
+		enemyData.setSize(baseSize);
+		enemyData.setSpeed(baseSpeed);
+		enemyData.setImage(imagePath);
+		enemyData.setValue(baseValue);
+		this.path = new Path();
+		path.addPathPoint(first);
+		path.addPathPoint(second);
+		path.addPathPoint(third);
+		enemy = new Enemy(enemyData, path);
 	}
 	
 	@Test
 	public void testConstructor() {
-		assertEquals(this.enemy.getValue(), TestEnemy.baseValue);
-		assertEquals(this.enemy.getLives(), TestEnemy.baseLives);
-		assertEquals(this.enemy.getSpeed(), TestEnemy.baseSpeed);
+		assertEquals(this.enemy.getValue(), baseValue);
+		assertEquals(this.enemy.getLives(), baseLives);
+		assertEquals(this.enemy.getSpeed(), baseSpeed);
+		assertEquals(this.enemy.getImagePath(), imagePath);
+		assertEquals(this.enemy.getSize(), baseSize);
 		assertTrue(this.enemy.isLiving());
 		assertFalse(this.enemy.hasReachedExit());
-		assertEquals(this.enemy.getImagePath(), TestEnemy.imagePath);
-		assertEquals(this.enemy.getSize(), TestEnemy.baseSize);
 	}
 	
 	@Test
@@ -58,11 +60,6 @@ public class EnemyTest {
 	
 	@Test
 	public void testMove() {
-		this.path = new Path();
-		path.addPathPoint(first);
-		path.addPathPoint(second);
-		path.addPathPoint(third);
-		enemy.setPath(path);
 		assertEquals(this.enemy.getPosition(), first, "Enemy must start at first path point!");
 		double startDistance = MathHelper.getDistance(this.enemy.getPosition(), second);
 		this.enemy.move();

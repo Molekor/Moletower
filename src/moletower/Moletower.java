@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -41,6 +42,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 	private Vector<Long> spawnPauses;
 	private InfoPanel infoPanel;
 	private Vector<TowerData> allTowerData;
+	private HashMap<String, EnemyData> enemyData;
 	
 	public static void main(String[] args) {
 		new Moletower();
@@ -55,8 +57,9 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		
 		try {
 			this.path = this.getPath("/path1.csv");
+			this.enemyData = this.loadEnemyData("/enemies.csv");
 			this.loadEnemyFile("/rounds1.csv");
-			this.allTowerData = this.loadTowerFile("/towers.csv");
+			this.allTowerData = TowerData.create(this.parseFileToLines("/towers.csv"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -84,8 +87,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		gameThread.start();
 	}
 
-
-	private Vector<TowerData> loadTowerFile(String filename) throws IOException {
+	private Vector<String> parseFileToLines(String filename) throws IOException {
 		InputStream inputStream = this.getClass().getResourceAsStream(filename);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		Vector<String> lines = new Vector<String>();
@@ -93,9 +95,8 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		while ((line = reader.readLine()) != null) {
 			lines.add(line);
 		}
-		return TowerData.create(lines);
+		return lines;
 	}
-
 	private Path getPath(String pathFileName) throws IOException {
 		Path path = new Path();
 		InputStream inputStream = this.getClass().getResourceAsStream(pathFileName);
@@ -110,6 +111,43 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		return path;
 	}
 
+	private HashMap<String, EnemyData> loadEnemyData(String filename) throws IOException {
+		HashMap<String, EnemyData> parsedData = new HashMap<>();
+		Vector<String> lines = this.parseFileToLines(filename);
+		String[] fieldNames=null;
+		String[] rawData;
+		Iterator<String> linesIterator = lines.iterator();
+		// First line must hold the field names
+		String line = linesIterator.next();
+		if (line != null) {
+			fieldNames = line.split(",");
+		}
+		while (linesIterator.hasNext()) {
+			line = linesIterator.next();
+			rawData = line.split(",");
+			EnemyData nextEnemyType = new EnemyData();
+			String id = "";
+			for (int i = 0; i < fieldNames.length; i++) {
+				String key = fieldNames[i];
+				if (key.equals(EnemyData.ID)) {
+					id = rawData[i];
+				} else if (key.equals(EnemyData.HEALTH)) {
+					nextEnemyType.setHealth(Integer.parseInt(rawData[i]));
+				}  else if (key.equals(EnemyData.IMAGE)) {
+					nextEnemyType.setImage(rawData[i]);
+				} else if (key.equals(EnemyData.SIZE)) {
+					nextEnemyType.setSize(Integer.parseInt(rawData[i]));
+				} else if (key.equals(EnemyData.VALUE)) {
+					nextEnemyType.setValue(Integer.parseInt(rawData[i]));
+				}  else if (key.equals(EnemyData.SPEED)) {
+					nextEnemyType.setSpeed(Float.parseFloat(rawData[i]));
+				}
+			}
+			parsedData.put(id, nextEnemyType);
+		}
+		return parsedData;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void run() {
 		this.gameWindow.repaint();
@@ -186,12 +224,9 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 			if (enemyGroup.length == 3) {
 				Vector<Enemy> enemyVector = new Vector<Enemy>();
 				this.spawningEnemies.add(enemyVector);
+				EnemyData currentEnemyData = this.enemyData.get(enemyGroup[1]);
 				for (int i = 0; i < Integer.parseInt(enemyGroup[0]); i++) {
-					if (enemyGroup[1].equals("1")) {
-						enemyVector.add(new Slowenemy(this.path));
-					} else {
-						enemyVector.add(new Fastenemy(this.path));
-					}
+					enemyVector.add(new Enemy(currentEnemyData, this.path));
 				}
 				this.spawnPauses.add(Long.parseLong(enemyGroup[2]));
 			}
