@@ -36,11 +36,14 @@ class TowerTest {
 		this.towerData.setPrice(80,3);
 		this.towerData.setCooldown(2,1);
 		this.towerData.setCooldown(3,2);
+		this.towerData.setCooldown(4,3);
 		this.towerData.setDamage(5,1);
 		this.towerData.setDamage(10,2);
+		this.towerData.setDamage(15,3);
 		this.towerData.setName("Tower for testing");
 		this.towerData.setRange(50,1);
 		this.towerData.setRange(80,2);
+		this.towerData.setRange(100,3);
 		this.towerData.setSize(30);
 		this.towerPosition = new Point(1,1);
 		this.testTower = new Tower(this.towerData);
@@ -75,34 +78,29 @@ class TowerTest {
 		assertNull(this.testTower.shoot(this.enemies, 1),"Tower fired a shot at an out of range target! Range: " + this.testTower.getRange());
 	}
 	
-	@Test
-	void firstShot() {
-		this.testTower.setActive(true);
-		TestEnemy closeEnemy = new TestEnemy();
-		closeEnemy.setPosition(new Point(1,10));
-		this.enemies.add(closeEnemy);
-		assertInstanceOf(Shot.class, this.testTower.shoot(this.enemies, 1), "Fresh tower did not shoot!");
-	}
-	@Test
-	void shotAngle() {
+	private Shot doAShot(int tick) {
 		this.testTower.setActive(true);
 		TestEnemy closeEnemy = new TestEnemy();
 		closeEnemy.setPosition(new Point(2,2));
 		this.enemies.add(closeEnemy);
-		Shot shot = this.testTower.shoot(this.enemies, 1);
-		assertEquals(45.0,Math.toDegrees(shot.getAngle()));
+		return this.testTower.shoot(this.enemies, tick);
 	}
 	
 	@Test
+	void firstShot() {
+		Shot testShot = this.doAShot(1);
+		assertInstanceOf(Shot.class, testShot, "Fresh tower did not shoot!");
+		assertEquals(45.0,Math.toDegrees(testShot.getAngle()), "Wrong shooting angle!");
+		assertEquals(testShot.getDamage(), this.towerData.getDamage(1));
+	}
+
+	
+	@Test
 	void secondShot() {
-		this.testTower.setActive(true);
-		TestEnemy closeEnemy = new TestEnemy();
-		closeEnemy.setPosition(new Point(2,2));
-		this.enemies.add(closeEnemy);
-		assertInstanceOf(Shot.class, this.testTower.shoot(this.enemies, (long)1), "Fresh tower did not shoot!");
-		assertNull(this.testTower.shoot(this.enemies, (long)2),"Tower fired too soon!");
-		assertNull(this.testTower.shoot(this.enemies, (long)3),"Tower fired too soon!");
-		assertInstanceOf(Shot.class, this.testTower.shoot(this.enemies, (long)4), "Tower did not shoot after Cooldown!");
+		assertInstanceOf(Shot.class, this.doAShot(1), "Fresh tower did not shoot!");
+		assertNull(this.doAShot(2),"Tower fired too soon!");
+		assertNull(this.doAShot(3),"Tower fired too soon!");
+		assertInstanceOf(Shot.class, this.doAShot(4), "Tower did not shoot after Cooldown!");
 	}
 	
 	@Test
@@ -125,5 +123,7 @@ class TowerTest {
 		}
 		// Assert that no more upgrade is possible now
 		assertFalse(this.testTower.canBeUpgraded());
+		// Check the damage of the upgraded shot
+		assertEquals(this.doAShot(1).getDamage(), this.towerData.getDamage(TowerData.MAX_LEVEL));
 	}
 }

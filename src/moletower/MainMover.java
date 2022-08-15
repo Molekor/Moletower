@@ -121,7 +121,7 @@ public class MainMover {
 					}
 					if (MathHelper.getDistance(currentShot.getPosition(), currentEnemy.getPosition()) <= (currentEnemy.getSize() / 2)) {
 						currentShot.hit();
-						currentEnemy.hit();
+						currentEnemy.hit(currentShot);
 						if (!currentEnemy.isLiving) {
 							this.gameData.adjustMoney(currentEnemy.getValue());
 						}

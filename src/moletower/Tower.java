@@ -48,7 +48,7 @@ public class Tower {
 			}
 			this.lastShootingTick  = tick;
 			double angle = MathHelper.calculateAngle(this.position.x, this.position.y, target.x, target.y);
-			return new Shot(position, angle, this.range);
+			return new Shot(position, angle, this.range, this.damage);
 		}
 		return null;
 	}

@@ -70,6 +70,8 @@ public class GraphicsHelper {
 	}
 
 	public static BufferedImage getDarkenedImage(String imagePath, float brightness) {
+		// limit to 10 different shades
+		brightness = Math.round(brightness * 10) /10f;
 		ImageHash hash = new ImageHash(imagePath, brightness);
 		BufferedImage image = GraphicsHelper.darkenedImages.get(hash);
 		if (image == null) {

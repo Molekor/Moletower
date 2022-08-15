@@ -13,7 +13,7 @@ public class EnemyTest {
 
 	class TestEnemy extends Enemy {
 		
-		public static int baseLives = 2;
+		public static int baseLives = 10;
 		public static int baseValue = 3;
 		public static double baseSpeed = 10;
 		public static int deadDuration = 10;
@@ -49,9 +49,10 @@ public class EnemyTest {
 	
 	@Test
 	public void testHit() {
-		this.enemy.hit();
-		assertEquals(this.enemy.getLives(), 1);
-		this.enemy.hit();
+		Shot shot = new Shot(new Point(1,1), 45, 10, 5);
+		this.enemy.hit(shot);
+		assertEquals(this.enemy.getLives(), 5);
+		this.enemy.hit(shot);
 		assertFalse(this.enemy.isLiving());
 	}
 	

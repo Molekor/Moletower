@@ -1,8 +1,6 @@
 package moletower;
 
-import java.awt.Image;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 
 /**
  * Evil things that follow a path along the map to reach the exit.
@@ -27,7 +25,6 @@ public abstract class Enemy {
 	protected int baseLives; // starting lives of the enemy class
 	protected String imagePath;
 	protected int size;
-	protected BufferedImage image;
 	
 	/**
 	 * Constructor. Sets the path points this enemy will follow, and sets the first
@@ -117,14 +114,14 @@ public abstract class Enemy {
 	/**
 	 * The enemy has been hit by a shot of a tower and loses a life point.
 	 * It dies at zero lives.
+	 * @param currentShot 
 	 */
-	public void hit() {
-		this.lives--;
+	public void hit(Shot currentShot) {
+		this.lives = this.lives - currentShot.getDamage();
 		if (this.lives <= 0) {
 			this.diedAt = System.currentTimeMillis();
 			this.isLiving = false;
 		}
-		this.image = GraphicsHelper.getDarkenedImage(this.imagePath, (float) this.lives / (float) this.baseLives);
 	}
 
 	/**
@@ -143,19 +140,19 @@ public abstract class Enemy {
 		return this.isLiving;
 	}
 
-	protected int getValue() {
+	public int getValue() {
 		return this.value;
 	}
 
-	protected  String getImagePath() {
+	public  String getImagePath() {
 		return this.imagePath;
 	}
 	
-	protected int getLives() {
+	public int getLives() {
 		return this.lives;
 	}
 	
-	protected double getSpeed() {
+	public double getSpeed() {
 		return this.speed;
 	}
 
@@ -170,10 +167,4 @@ public abstract class Enemy {
 		return (float) this.lives / (float) this.baseLives;
 	}
 
-	public Image getImage() {
-		if (this.image == null) {
-			this.image = GraphicsHelper.getImage(imagePath);
-		}
-		return this.image;
-	}
 }

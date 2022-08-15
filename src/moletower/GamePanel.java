@@ -92,7 +92,7 @@ public class GamePanel extends JPanel {
 					return;
 				}
 				if (currentEnemy.isLiving) {		
-					Image image = currentEnemy.getImage();
+					Image image = GraphicsHelper.getDarkenedImage(currentEnemy.getImagePath(), currentEnemy.getHealthStatus());
 					g.drawImage(image, (int) currentEnemy.x - image.getWidth(null) / 2, (int) currentEnemy.y - image.getHeight(null) / 2, null);
 				} else {
 					g.setColor(Color.GREEN);

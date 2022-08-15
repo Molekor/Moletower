@@ -14,12 +14,14 @@ public class Shot {
 	private int deadDuration = 1000;
 	private boolean canBeDeleted = false;
 	private boolean isLiving = true;
+	private int damage;
 
-	public Shot(Point position, double angle, double range) {
+	public Shot(Point position, double angle, double range, int damage) {
 		this.x = position.x;
 		this.y = position.y;
 		this.angle = angle;
 		this.range = range;
+		this.damage = damage;
 	}
 
 	public Point getPosition() {
@@ -60,5 +62,13 @@ public class Shot {
 
 	public boolean isLiving() {
 		return this.isLiving;
+	}
+
+	public int getDamage() {
+		return this.damage;
+	}
+
+	public void setDamage(Integer damage) {
+		this.damage = damage;
 	}
 }
