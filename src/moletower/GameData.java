@@ -14,14 +14,16 @@ public class GameData {
 	private boolean moneyWarning;
 	private Tower towerToPlace;
 	private Tower selectedTower;
+	private int level;
 	
-	public GameData() {
+	public GameData(int level) {
 		this.enemies = new Vector<Enemy>();
 		this.towers = new Vector<Tower>();
 		this.shots = new Vector<Shot>();
 		this.lives = 50;
 		this.money = 100;
 		this.tick = 0;
+		this.level = 0;
 	}
 
 	public Vector<Tower> getTowers() {
@@ -110,6 +112,10 @@ public class GameData {
 
 	public Tower getSelectedTower() {
 		return this.selectedTower;
+	}
+
+	public int getLevel() {
+		return this.level;
 	}
 }
 
