@@ -80,7 +80,11 @@ public class GamePanel extends JPanel {
 		} else {
 			g.setColor(Color.WHITE);
 		}
-		g.drawString(String.format("Lives: %d Money: %d " + (this.gameData.isMoneyWarningActive()?"NO MONEY":"OK"), this.gameData.getLives(), this.gameData.getMoney()), 10, 13);
+		g.drawString(String.format("Lives: %d Money: %d " + (this.gameData.isMoneyWarningActive()?"NO MONEY":"OK") 
+				+ " Spawning: " + (this.gameData.isSpawning()?"Yes":"No"),
+				this.gameData.getLives(), this.gameData.getMoney())
+				, 10, 13
+		);
 
 	}
 
@@ -152,6 +156,7 @@ public class GamePanel extends JPanel {
 				lastPoint = pathIterator.next();
 			}
 		}
+		
 	}
 
 	public void setEnemiesToPaint(Vector<Enemy> enemies) {
@@ -169,4 +174,21 @@ public class GamePanel extends JPanel {
 	public void setTowerToPlace(Tower towerToPlace) {
 		this.towerToPlace = towerToPlace;
 	}
+
+	public Path getPath() {
+		return path;
+	}
+
+	public void setPath(Path path) {
+		this.path = path;
+	}
+
+	public GameData getGameData() {
+		return gameData;
+	}
+
+	public void setGameData(GameData gameData) {
+		this.gameData = gameData;
+	}
+	
 }

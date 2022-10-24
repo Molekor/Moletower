@@ -11,21 +11,12 @@ public class GameData {
 	private int money;
 	private long tick;
 	private boolean gameActive = false;
-	private boolean moneyWarning;
+	private boolean moneyWarning = false;
+	private boolean spawning = true;
 	private Tower towerToPlace;
 	private Tower selectedTower;
-	private int level;
+	private int level = 1;
 	
-	public GameData(int level) {
-		this.enemies = new Vector<Enemy>();
-		this.towers = new Vector<Tower>();
-		this.shots = new Vector<Shot>();
-		this.lives = 50;
-		this.money = 100;
-		this.tick = 0;
-		this.level = 0;
-	}
-
 	public Vector<Tower> getTowers() {
 		return towers;
 	}
@@ -114,8 +105,30 @@ public class GameData {
 		return this.selectedTower;
 	}
 
-	public int getLevel() {
-		return this.level;
+	public boolean isSpawning() {
+		return spawning;
 	}
+
+	public void setSpawning(boolean spawning) {
+		this.spawning = spawning;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public void reset() {
+		this.enemies = new Vector<Enemy>();
+		this.towers = new Vector<Tower>();
+		this.shots = new Vector<Shot>();
+		this.lives = 50;
+		this.money = 100;
+		this.tick = 0;
+	}
+	
 }
 

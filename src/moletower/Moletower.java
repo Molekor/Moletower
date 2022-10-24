@@ -25,6 +25,8 @@ import javax.swing.JOptionPane;
  */
 public class Moletower extends MouseAdapter implements Runnable, ActionListener, BuyListener, UpgradeListener {
 
+	private static final int SPAWN_SPACE = 10; // wait so many ticks between spawning enemies
+	private static final int MAX_LEVEL = 2;
 	private long lastMoveTime; // time we last moved the shots and enemies
 	private long timeSinceLastMove = 0; // how long has it been since the last move
 	private static int moveInterval = 40; // minimal interval between moves in ms, this represents overall game speed
@@ -35,14 +37,15 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 	private GameData gameData;
 	private ButtonPanel buttonPanel;
 	private Button startButton;
+	
+	private LevelData levelData;
 	private long spawnPause = 0;
 	private long spawnSpace = 0;
-	private Vector<Vector<Enemy>> spawningEnemies;
-	private Vector<Enemy> spawningGroup;
-	private Vector<Long> spawnPauses;
 	private InfoPanel infoPanel;
 	private Vector<TowerData> allTowerData;
 	private HashMap<String, EnemyData> enemyData;
+	private Vector<EnemyGroup> spawningGroups;
+	private EnemyGroup spawningGroup;
 	
 	public static void main(String[] args) {
 		new Moletower();
@@ -50,19 +53,10 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 
 	public Moletower() {
 		this.gameData = new GameData();
-		this.spawningEnemies = new Vector<Vector<Enemy>>();
-		this.spawningGroup = new Vector<Enemy>();
-		this.spawnPauses = new Vector<Long>();
-		this.spawnPauses.add(Long.parseLong("0"));
+		this.gameData.setLevel(1);
+		this.spawningGroups = new Vector<EnemyGroup>();
 		
-		try {
-			this.path = this.getPath("/path1.csv");
-			this.enemyData = this.loadEnemyData("/enemies.csv");
-			this.loadEnemyFile("/rounds1.csv");
-			this.allTowerData = TowerData.create(this.parseFileToLines("/towers.csv"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		init();
 		
 		this.gamePanel = new GamePanel(this.gameData, this.path);
 		this.gamePanel.addMouseListener(this);
@@ -87,33 +81,25 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		gameThread.start();
 	}
 
-	private Vector<String> parseFileToLines(String filename) throws IOException {
-		InputStream inputStream = this.getClass().getResourceAsStream(filename);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		Vector<String> lines = new Vector<String>();
-		String line;
-		while ((line = reader.readLine()) != null) {
-			lines.add(line);
+	private void init() {
+		this.gameData.reset();
+		try {
+			this.enemyData = this.loadEnemyData("/enemies.csv");
+			this.allTowerData = TowerData.create(IOHelper.parseFileToLines("/towers.csv"));
+			this.levelData = LevelDataFactory.getLevelData(this.gameData.getLevel(), new FileLevelDataLoader());
+			this.path = this.levelData.getPath();
+			this.spawningGroups = this.levelData.getEnemyGroups();
+			this.gameData.setSpawning(true);
+			this.spawnPause = 0;
+			this.spawnSpace = 0;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return lines;
-	}
-	private Path getPath(String pathFileName) throws IOException {
-		Path path = new Path();
-		InputStream inputStream = this.getClass().getResourceAsStream(pathFileName);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		for (String line; (line = reader.readLine()) != null; ) {
-			String[] coords = line.split(",");
-			if (coords.length == 2) {
-				path.addPathPoint(new Point(Integer.parseInt(coords[0]), Integer.parseInt(coords[1])));
-			}
-		}
-		reader.close();
-		return path;
 	}
 
 	private HashMap<String, EnemyData> loadEnemyData(String filename) throws IOException {
 		HashMap<String, EnemyData> parsedData = new HashMap<>();
-		Vector<String> lines = this.parseFileToLines(filename);
+		Vector<String> lines = IOHelper.parseFileToLines(filename);
 		String[] fieldNames=null;
 		String[] rawData;
 		Iterator<String> linesIterator = lines.iterator();
@@ -163,22 +149,37 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 					if (this.gameData.isGameActive()) {
 						this.mover.move();
 						this.gameData.addTick();
-						if (this.spawnSpace > 0) {
-							this.spawnSpace--;
-						} else {
-							if (this.spawnPause > 0) {
-								this.spawnPause--;
+						if (this.gameData.isSpawning()) {
+							if (this.spawnSpace > 0) {
+								this.spawnSpace--;
 							} else {
-								this.addEnemies();
+								if (this.spawnPause > 0) {
+									this.spawnPause--;
+								} else {
+									this.gameData.setSpawning(this.addEnemy());
+									// Reset the pause between enemies of the same group
+									this.spawnSpace = Moletower.SPAWN_SPACE;
+								}
 							}
 						}
 						if (this.gameData.getLives() <= 0) {
 							JOptionPane.showMessageDialog(this.gameWindow, "GAME OVER!");
 							System.exit(0);
 						}
-						if((this.spawningEnemies.size() == 0) && (this.spawningGroup.size() == 0) && (this.gameData.getEnemies().size() == 0) ) {
-							JOptionPane.showMessageDialog(this.gameWindow, "YOU WIN!");
-							System.exit(0);
+						if ((this.spawningGroups.size() == 0) && (this.gameData.getEnemies().size() == 0) ) {
+							if (this.gameData.getLevel() < Moletower.MAX_LEVEL) {
+								this.gameData.setLevel(this.gameData.getLevel() + 1);
+								this.init();
+								// TODO: refactor GamePanel and spawningGroup!
+								this.gamePanel.setPath(this.path);
+								this.gamePanel.setGameData(this.gameData);
+								this.spawningGroup = null;
+								this.gameData.setGameActive(false);
+								JOptionPane.showMessageDialog(this.gameWindow, "Level: " + this.gameData.getLevel());
+							} else {
+								JOptionPane.showMessageDialog(this.gameWindow, "YOU WIN!");
+								System.exit(0);
+							}
 						}
 					}
 					lastMoveTime = System.currentTimeMillis();
@@ -212,39 +213,31 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		return new Point(mouseX, mouseY);
 		
 	}
-
-	private void loadEnemyFile(String roundFileName) throws IOException, Exception {
-		InputStream inputStream = this.getClass().getResourceAsStream(roundFileName);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		for (String line; (line = reader.readLine()) != null; ) {
-			if (line.startsWith("#")) {
-				continue;
-			}
-			String[] enemyGroup = line.split(",");
-			if (enemyGroup.length == 3) {
-				Vector<Enemy> enemyVector = new Vector<Enemy>();
-				this.spawningEnemies.add(enemyVector);
-				EnemyData currentEnemyData = this.enemyData.get(enemyGroup[1]);
-				for (int i = 0; i < Integer.parseInt(enemyGroup[0]); i++) {
-					enemyVector.add(new Enemy(currentEnemyData, this.path));
-				}
-				this.spawnPauses.add(Long.parseLong(enemyGroup[2]));
-			}
-		}
-	}
 	
-	private void addEnemies() throws Exception {
-		if (this.spawningGroup.size() > 0) {
-			Enemy newEnemy = this.spawningGroup.remove(0);
-			newEnemy.setPath(this.path);
-			this.gameData.addEnemy(newEnemy);
-			this.spawnSpace = 10;
-		} else {
-			if (this.spawningEnemies.size() > 0) {
-				this.spawningGroup = this.spawningEnemies.remove(0);
-				this.spawnPause = this.spawnPauses.remove(0);
+	private boolean addEnemy() throws Exception {
+		boolean moreEnemies = true;
+		if (this.spawningGroup == null) {
+			// Activate the first group
+			this.spawningGroup = this.spawningGroups.remove(0);
+		}
+		// If the current group is empty, activate it's pause and get the next enemy group
+		if (this.spawningGroup.getAmount() < 1) {
+			// The pause time is stored in the enemy group we just emptied
+			this.spawnPause = this.spawningGroup.getPause();
+			// Activate the next group
+			if (this.spawningGroups.size() > 0) {
+				this.spawningGroup = this.spawningGroups.remove(0);
+			} else {
+				// No more groups - no more enemies to spawn
+				moreEnemies = false;
 			}
 		}
+		// Create a new enemy of the group's type and add it to the game data.
+		Enemy newEnemy = new Enemy(this.enemyData.get(String.valueOf(spawningGroup.getEnemyType())), this.path);
+		this.gameData.addEnemy(newEnemy);
+		// Reduce the amount of enemies to spawn in this group by one
+		this.spawningGroup.setAmount(this.spawningGroup.getAmount() - 1);
+		return moreEnemies;
 	}
 
 	@Override
