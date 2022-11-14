@@ -1,6 +1,8 @@
-package moletower;
+package moletower.model;
 
 import java.awt.Point;
+
+import moletower.controller.MathHelper;
 
 /**
  * Evil things that follow a path along the map to reach the exit.
@@ -13,8 +15,8 @@ public class Enemy {
 	protected Path path;
 	protected int nextPathPoint = 1;
 	protected double speed;
-	protected double x;
-	protected double y;
+	private double x;
+	private double y;
 	protected boolean hasReachedExit = false;
 	protected long diedAt = 0; // at what time has the enemy been disposed
 	protected long deadDuration = 500; // how long shall we show the dead enemy image
@@ -59,15 +61,15 @@ public class Enemy {
 		
 		// Find the coordinates of the next path point
 		Point destination = this.path.getPathPoints().get(nextPathPoint);
-		double dx = destination.x - this.x;
-		double dy = destination.y - this.y;
+		double dx = destination.x - this.getX();
+		double dy = destination.y - this.getY();
 		
 		// Determine how many pixels we must move horizontally and vertically
-		double angle = MathHelper.calculateAngle(this.x, this.y, destination.x, destination.y);
+		double angle = MathHelper.calculateAngle(this.getX(), this.getY(), destination.x, destination.y);
 		double xMove = speed * Math.cos(angle);
 		double yMove = speed * Math.sin(angle);
-		this.x = this.x + xMove;
-		this.y = this.y + yMove;
+		this.setX(this.getX() + xMove);
+		this.setY(this.getY() + yMove);
 		
 		// If we moved further than the distance to the path position,
 		// move on to the following path point.
@@ -77,8 +79,8 @@ public class Enemy {
 			if (nextPathPoint == this.path.getPathPoints().size() - 1) {
 				this.hasReachedExit = true;
 			} else {
-				this.x = destination.x;
-				this.y = destination.y;
+				this.setX(destination.x);
+				this.setY(destination.y);
 				nextPathPoint++;
 			}
 		}
@@ -88,12 +90,12 @@ public class Enemy {
 	 * @return Map position of this enemy
 	 */
 	public Point getPosition() {
-		return new Point((int) this.x, (int) this.y);
+		return new Point((int) this.getX(), (int) this.getY());
 	}
 
 	public void setPosition(Point position) {
-		this.x = position.x;
-		this.y = position.y;
+		this.setX(position.x);
+		this.setY(position.y);
 	}
 	
 	public boolean hasReachedExit() {
@@ -156,12 +158,40 @@ public class Enemy {
 	public void setPath(Path path) {
 		this.path = path;	
 		Point start = this.path.getPathPoints().get(0);
-		this.x = start.x;
-		this.y = start.y;
+		this.setX(start.x);
+		this.setY(start.y);
 	}
 
 	public float getHealthStatus() {
 		return (float) this.lives / (float) this.baseLives;
+	}
+
+	public boolean isHasReachedExit() {
+		return hasReachedExit;
+	}
+
+	public void setHasReachedExit(boolean hasReachedExit) {
+		this.hasReachedExit = hasReachedExit;
+	}
+
+	public void setLiving(boolean isLiving) {
+		this.isLiving = isLiving;
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
+		this.y = y;
 	}
 
 }

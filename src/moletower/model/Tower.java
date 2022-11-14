@@ -1,9 +1,11 @@
-package moletower;
+package moletower.model;
 
 import java.awt.Color;
 import java.awt.Point;
 import java.util.Iterator;
 import java.util.Vector;
+
+import moletower.controller.MathHelper;
 
 public class Tower {
 	
@@ -47,7 +49,7 @@ public class Tower {
 				return null;
 			}
 			this.lastShootingTick  = tick;
-			double angle = MathHelper.calculateAngle(this.position.x, this.position.y, target.x, target.y);
+			double angle = MathHelper.calculateAngle(this.position.x, this.position.y, target.getX(), target.getY());
 			return new Shot(position, angle, this.range, this.damage);
 		}
 		return null;

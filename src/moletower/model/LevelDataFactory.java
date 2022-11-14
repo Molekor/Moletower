@@ -1,4 +1,4 @@
-package moletower;
+package moletower.model;
 
 import java.awt.Point;
 import java.io.IOException;

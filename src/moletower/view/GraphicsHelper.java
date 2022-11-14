@@ -1,4 +1,4 @@
-package moletower;
+package moletower.view;
 
 import java.awt.Graphics;
 import java.awt.Point;
@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import javax.imageio.ImageIO;
+
+import moletower.controller.MathHelper;
 
 public class GraphicsHelper {
 

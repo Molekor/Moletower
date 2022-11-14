@@ -1,4 +1,4 @@
-package moletower;
+package moletower.model;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,6 +8,8 @@ import java.awt.Point;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import moletower.controller.MathHelper;
 
 public class EnemyTest {
 		

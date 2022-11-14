@@ -1,4 +1,4 @@
-package moletower;
+package moletower.model;
 
 import java.util.Iterator;
 import java.util.Vector;

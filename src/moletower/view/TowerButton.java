@@ -1,4 +1,4 @@
-package moletower;
+package moletower.view;
 
 import java.awt.Button;
 import java.awt.event.ActionEvent;

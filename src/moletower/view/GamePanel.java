@@ -1,4 +1,4 @@
-package moletower;
+package moletower.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,6 +9,12 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.JPanel;
+
+import moletower.model.Enemy;
+import moletower.model.GameData;
+import moletower.model.Path;
+import moletower.model.Shot;
+import moletower.model.Tower;
 
 public class GamePanel extends JPanel {
 	
@@ -92,15 +98,15 @@ public class GamePanel extends JPanel {
 		Iterator<Enemy> enemyIterator = this.enemies.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy currentEnemy = enemyIterator.next();
-				if (currentEnemy.hasReachedExit) {
+				if (currentEnemy.hasReachedExit()) {
 					return;
 				}
-				if (currentEnemy.isLiving) {		
+				if (currentEnemy.isLiving()) {		
 					Image image = GraphicsHelper.getDarkenedImage(currentEnemy.getImagePath(), currentEnemy.getHealthStatus());
-					g.drawImage(image, (int) currentEnemy.x - image.getWidth(null) / 2, (int) currentEnemy.y - image.getHeight(null) / 2, null);
+					g.drawImage(image, (int) currentEnemy.getX() - image.getWidth(null) / 2, (int) currentEnemy.getY() - image.getHeight(null) / 2, null);
 				} else {
 					g.setColor(Color.GREEN);
-					g.fillRect((int) currentEnemy.x - 2, (int) currentEnemy.y - 2, 4, 4);
+					g.fillRect((int) currentEnemy.getX() - 2, (int) currentEnemy.getY() - 2, 4, 4);
 				}
 			}		
 	}

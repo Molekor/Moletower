@@ -1,4 +1,4 @@
-package moletower;
+package moletower.model;
 
 public class EnemyGroup {
 	

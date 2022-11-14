@@ -1,7 +1,9 @@
-package moletower;
+package moletower.model;
 
 import java.io.IOException;
 import java.util.Vector;
+
+import moletower.controller.IOHelper;
 
 public class FileLevelDataLoader extends LevelDataLoader {
 

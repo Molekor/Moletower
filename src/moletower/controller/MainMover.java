@@ -1,6 +1,11 @@
-package moletower;
+package moletower.controller;
 
 import java.util.Iterator;
+
+import moletower.model.Enemy;
+import moletower.model.GameData;
+import moletower.model.Shot;
+import moletower.model.Tower;
 
 public class MainMover {
 
@@ -122,7 +127,7 @@ public class MainMover {
 					if (MathHelper.getDistance(currentShot.getPosition(), currentEnemy.getPosition()) <= (currentEnemy.getSize() / 2)) {
 						currentShot.hit();
 						currentEnemy.hit(currentShot);
-						if (!currentEnemy.isLiving) {
+						if (!currentEnemy.isLiving()) {
 							this.gameData.adjustMoney(currentEnemy.getValue());
 						}
 						break;

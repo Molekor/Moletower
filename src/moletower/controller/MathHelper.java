@@ -1,8 +1,11 @@
-package moletower;
+package moletower.controller;
 
 import java.awt.Point;
 import java.util.Iterator;
 import java.util.Vector;
+
+import moletower.model.Path;
+import moletower.model.Tower;
 
 public class MathHelper {
 	
