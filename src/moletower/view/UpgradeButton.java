@@ -4,6 +4,7 @@ import java.awt.Button;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import moletower.controller.UpgradeListener;
 import moletower.model.Tower;
 
 public class UpgradeButton extends Button implements ActionListener {

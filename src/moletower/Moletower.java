@@ -17,9 +17,12 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import moletower.controller.BuyListener;
 import moletower.controller.IOHelper;
 import moletower.controller.MainMover;
 import moletower.controller.MathHelper;
+import moletower.controller.TowerController;
+import moletower.controller.UpgradeListener;
 import moletower.model.Enemy;
 import moletower.model.EnemyData;
 import moletower.model.EnemyGroup;
@@ -32,12 +35,10 @@ import moletower.model.Shot;
 import moletower.model.Tower;
 import moletower.model.TowerData;
 import moletower.view.ButtonPanel;
-import moletower.view.BuyListener;
 import moletower.view.GamePanel;
 import moletower.view.GameWindow;
 import moletower.view.InfoPanel;
 import moletower.view.TowerButton;
-import moletower.view.UpgradeListener;
 
 /**
  * The main class of the game.
@@ -45,7 +46,7 @@ import moletower.view.UpgradeListener;
  * @author Molekor
  *
  */
-public class Moletower extends MouseAdapter implements Runnable, ActionListener, BuyListener, UpgradeListener {
+public class Moletower extends MouseAdapter implements Runnable, ActionListener {
 
 	private static final int SPAWN_SPACE = 10; // wait so many ticks between spawning enemies
 	private static final int MAX_LEVEL = 2;
@@ -55,6 +56,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 	private GameWindow gameWindow; // Main window of the game that handles basic I/O
 	private Path path; // The path all enemies will follow to the exit
 	private GamePanel gamePanel;
+	private TowerController towerController;
 	private MainMover mover;
 	private GameData gameData;
 	private ButtonPanel buttonPanel;
@@ -64,7 +66,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 	private long spawnPause = 0;
 	private long spawnSpace = 0;
 	private InfoPanel infoPanel;
-	private Vector<TowerData> allTowerData;
+	
 	private HashMap<String, EnemyData> enemyData;
 	private Vector<EnemyGroup> spawningGroups;
 	private EnemyGroup spawningGroup;
@@ -77,17 +79,17 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		this.gameData = new GameData();
 		this.gameData.setLevel(1);
 		this.spawningGroups = new Vector<EnemyGroup>();
-		
+		this.towerController = new TowerController(gameData);
 		init();
 		
 		this.gamePanel = new GamePanel(this.gameData, this.path);
 		this.gamePanel.addMouseListener(this);
 		
 		this.buttonPanel = new ButtonPanel();
-		for (int i = 0; i < this.allTowerData.size(); i++) {
-			TowerData towerData = this.allTowerData.get(i);
+		for (int i = 0; i < this.towerController.getAllTowerData().size(); i++) {
+			TowerData towerData = this.towerController.getAllTowerData().get(i);
 			TowerButton towerButton = new TowerButton(towerData.getName() + " " + towerData.getPrice(1) + "$", i);
-			towerButton.setListener(this);
+			towerButton.setListener(this.towerController);
 			this.buttonPanel.addButton(towerButton);
 		}
 		this.startButton = new Button("Start");
@@ -95,7 +97,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		this.buttonPanel.addButton(this.startButton);
 		
 		this.infoPanel = new InfoPanel();
-		this.infoPanel.setUpgradeActionListener(this);
+		this.infoPanel.setUpgradeActionListener(this.towerController);
 		
 		this.gameWindow = new GameWindow(this.gamePanel, this.buttonPanel, this.infoPanel);
 		this.mover = new MainMover(this.gameData);
@@ -107,7 +109,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		this.gameData.reset();
 		try {
 			this.enemyData = this.loadEnemyData("/enemies.csv");
-			this.allTowerData = TowerData.create(IOHelper.parseFileToLines("/towers.csv"));
+			this.towerController.setAllTowerData(TowerData.create(IOHelper.parseFileToLines("/towers.csv")));
 			this.levelData = LevelDataFactory.getLevelData(this.gameData.getLevel(), new FileLevelDataLoader());
 			this.path = this.levelData.getPath();
 			this.spawningGroups = this.levelData.getEnemyGroups();
@@ -268,8 +270,7 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 			this.gameData.setGameActive(!this.gameData.isGameActive());
 		}
 		if (e.getActionCommand().equals(InfoPanel.UPGRADE_TOWER_ACTION)) {
-			System.out.println(InfoPanel.UPGRADE_TOWER_ACTION);
-			this.requestTowerUpgrade(this.gameData.getSelectedTower());
+			this.towerController.requestTowerUpgrade(this.gameData.getSelectedTower());
 		}
 	}
 
@@ -308,27 +309,6 @@ public class Moletower extends MouseAdapter implements Runnable, ActionListener,
 		}
 	}
 
-	public void requestTowerBuy(int towerTypeId) {
-		this.gameData.setSelectedTower(null);
-		this.infoPanel.setSelectedTower(null);
-		TowerData towerData = this.allTowerData.get(towerTypeId);
-		Tower newTower = new Tower(towerData);
-		// Check if we have the money to place the selected tower
-		if (newTower.getPrice() > this.gameData.getMoney()) {
-			this.gameData.setMoneyWarning(true);
-			this.gameData.setTowerToPlace(null);
-		} else {
-			this.gameData.setMoneyWarning(false);
-			this.gameData.setTowerToPlace(newTower);
-		}
-	}
 
-	public void requestTowerUpgrade(Tower towerToUpgrade) {
-		int price = towerToUpgrade.getPrice();
-		if (price <= this.gameData.getMoney()) {
-			towerToUpgrade.upgrade();
-			this.gameData.adjustMoney(-price);
-		}
-	}
 
 }

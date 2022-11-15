@@ -4,6 +4,8 @@ import java.awt.Button;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import moletower.controller.BuyListener;
+
 public class TowerButton extends Button implements ActionListener {
 
 	private int towerTypeId;

@@ -1,4 +1,4 @@
-package moletower.view;
+package moletower.controller;
 
 public interface BuyListener {
 

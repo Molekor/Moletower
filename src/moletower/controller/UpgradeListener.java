@@ -1,4 +1,4 @@
-package moletower.view;
+package moletower.controller;
 
 import moletower.model.Tower;
 
